@@ -6,6 +6,7 @@ import torch
 import mbrl.algorithms.mbpo as mbpo
 import mbrl.algorithms.macura as macura
 import mbrl.algorithms.m2ac as m2ac
+import mbrl.algorithms.macura_modified_env as macura_modified_env
 
 import mbrl.util.env
 
@@ -34,9 +35,22 @@ def run(cfg: omegaconf.DictConfig):
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
-        test_env.env.unwrapped.model.opt.gravity[2] = -4.5
-        test_env2.env.unwrapped.model.opt.gravity[2] = -4.5
-        return macura.train(env, test_env,test_env2 ,term_fn, cfg)
+
+        # double gravity
+        test_env.env.unwrapped.model.opt.gravity[2] = -19.64
+        test_env2.env.unwrapped.model.opt.gravity[2] = -19.64
+
+        # double length of pole
+        pole_geom_id = test_env.env.unwrapped.model.geom_name2id('vpole')
+        test_env.env.unwrapped.model.geom_fromto[pole_geom_id][5] = 1.2
+        pole_geom_id2 = test_env2.env.unwrapped.model.geom_name2id('vpole')
+        test_env2.env.unwrapped.model.geom_fromto[pole_geom_id2][5] = 1.2
+
+        # reset to apply changes
+        test_env.env.reset()
+        test_env2.env.reset()
+
+        return macura_modified_env.train(env, test_env,test_env2 ,term_fn, cfg)
 
 if __name__ == "__main__":
         run()
