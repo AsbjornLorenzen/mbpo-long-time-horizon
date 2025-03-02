@@ -41,10 +41,13 @@ def run(cfg: omegaconf.DictConfig):
         test_env2.env.unwrapped.model.opt.gravity[2] = -19.64
 
         # double length of pole
-        pole_geom_id = test_env.env.unwrapped.model.geom_name2id('vpole')
-        test_env.env.unwrapped.model.geom_fromto[pole_geom_id][5] = 1.2
-        pole_geom_id2 = test_env2.env.unwrapped.model.geom_name2id('vpole')
-        test_env2.env.unwrapped.model.geom_fromto[pole_geom_id2][5] = 1.2
+        pole_geom_id = test_env.env.unwrapped.model.geom('cpole').id
+        # original_size = test_env.env.unwrapped.model.geom(pole_geom_id).size.copy()
+        test_env.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
+
+        pole_geom_id = test_env2.env.unwrapped.model.geom('cpole').id
+        # original_size = test_env2.env.unwrapped.model.geom(pole_geom_id).size.copy()
+        test_env2.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
 
         # reset to apply changes
         test_env.env.reset()
