@@ -31,6 +31,12 @@ def run(cfg: omegaconf.DictConfig):
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         return macura.train(env, test_env,test_env2 ,term_fn, cfg)
+    if cfg.algorithm.name == "macura_modified_env":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env.env.unwrapped.model.opt.gravity[2] = -4.5
+        test_env2.env.unwrapped.model.opt.gravity[2] = -4.5
+        return macura.train(env, test_env,test_env2 ,term_fn, cfg)
 
 if __name__ == "__main__":
         run()
