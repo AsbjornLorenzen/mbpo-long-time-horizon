@@ -18,3 +18,5 @@ MACURA_Submission is the folder where the whole project folder mbrl is contained
 
 4. export CPATH=/<Conda Installation Directory>/envs/macura_env/include
 
+
+A
