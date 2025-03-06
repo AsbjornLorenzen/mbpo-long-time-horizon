@@ -5,6 +5,7 @@ import torch
 
 import mbrl.algorithms.mbpo as mbpo
 import mbrl.algorithms.macura as macura
+import mbrl.algorithms.macura_new as macura_new
 import mbrl.algorithms.m2ac as m2ac
 import mbrl.algorithms.macura_modified_env as macura_modified_env
 
@@ -32,6 +33,12 @@ def run(cfg: omegaconf.DictConfig):
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         return macura.train(env, test_env,test_env2 ,term_fn, cfg)
+    
+    if cfg.algorithm.name == "macura_new":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return macura_new.train(env, test_env,test_env2 ,term_fn, cfg)
+    
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
