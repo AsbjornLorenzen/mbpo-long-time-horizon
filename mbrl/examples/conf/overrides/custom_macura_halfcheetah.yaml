@@ -2,7 +2,7 @@
 env: "gym___HalfCheetah-v4"
 term_fn: "no_termination"
 
-num_steps: 40000
+num_steps: 400000
 epoch_length: 1000
 num_elites: 7
 patience: 5
@@ -43,4 +43,4 @@ max_rollout_length: 10
 xi: 2.0
 zeta: 95
 
-prev_experiment_dir: "../../../../../macura/initial_short_test/gym___HalfCheetah-v4/2025.03.02/144128/"
+prev_experiment_dir: "../../../../../macura/macura_cheetah_full/gym___HalfCheetah-v4/2025.03.02/212325/"

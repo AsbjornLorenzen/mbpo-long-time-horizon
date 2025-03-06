@@ -100,8 +100,7 @@ class MujocoEnvHandler(EnvHandler):
             env = gym.wrappers.TimeLimit(env, max_episode_steps=1000)
         return env
 
-    @staticmethod
-    def get_current_state(env: gym.wrappers.TimeLimit) -> Tuple:
+    def get_current_state(env) -> Tuple:
         """Returns the internal state of the environment.
 
         Returns a tuple with information that can be passed to :func:set_env_state` to manually
@@ -116,12 +115,46 @@ class MujocoEnvHandler(EnvHandler):
             (position and velocity), and the number of elapsed steps so far.
 
         """
-        state = (
-            env.env.data.qpos.ravel().copy(),
-            env.env.data.qvel.ravel().copy(),
-        )
+        # Check if it's a MuJoCo environment
+        if hasattr(env.env, 'data') and hasattr(env.env.data, 'qpos'):
+            # MuJoCo environment
+            state = (
+                env.env.data.qpos.ravel().copy(),
+                env.env.data.qvel.ravel().copy()
+            )
+        # For Box2D LunarLander specifically
+        elif "LunarLander" in str(type(env.unwrapped)):
+            unwrapped = env.unwrapped
+            lander = unwrapped.lander
+            # The state includes position, angle, linear and angular velocities
+            pos = np.array([
+                lander.position[0],
+                lander.position[1]
+            ])
+            
+            vel = np.array([
+                lander.linearVelocity[0],
+                lander.linearVelocity[1],
+                lander.angularVelocity
+            ])
+            
+            leg_contact = np.array([
+                1.0 if unwrapped.legs[0].ground_contact else 0.0,
+                1.0 if unwrapped.legs[1].ground_contact else 0.0
+            ])
+            
+            state = (pos, vel, leg_contact)
+        
+        # elif hasattr(env.unwrapped, 'state'):
+        #     # Generic case if the environment has a state attribute
+        #     state = env.unwrapped.state
+        else:
+            raise Exception(f'State extraction not supported for environment type: {type(env.unwrapped)}')
+        
+
         elapsed_steps = env._elapsed_steps
         return state, elapsed_steps
+
 
     @staticmethod
     def set_env_state(state: Tuple, env: gym.wrappers.TimeLimit):

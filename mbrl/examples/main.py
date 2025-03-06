@@ -40,14 +40,49 @@ def run(cfg: omegaconf.DictConfig):
         test_env.env.unwrapped.model.opt.gravity[2] = -19.64
         test_env2.env.unwrapped.model.opt.gravity[2] = -19.64
 
-        # double length of pole
-        pole_geom_id = test_env.env.unwrapped.model.geom('cpole').id
-        # original_size = test_env.env.unwrapped.model.geom(pole_geom_id).size.copy()
-        test_env.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
+        # For modified cheetah: KeyError: "Invalid name 'cpole'. Valid names: ['bfoot', 'bshin', 'bthigh', 'ffoot', 'floor', 'fshin', 'fthigh', 'head', 'torso']"
+        # # double length of pole
+        # pole_geom_id = test_env.env.unwrapped.model.geom('cpole').id
+        # # original_size = test_env.env.unwrapped.model.geom(pole_geom_id).size.copy()
+        # test_env.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
 
-        pole_geom_id = test_env2.env.unwrapped.model.geom('cpole').id
-        # original_size = test_env2.env.unwrapped.model.geom(pole_geom_id).size.copy()
-        test_env2.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
+        # pole_geom_id = test_env2.env.unwrapped.model.geom('cpole').id
+        # # original_size = test_env2.env.unwrapped.model.geom(pole_geom_id).size.copy()
+        # test_env2.env.unwrapped.model.geom(pole_geom_id).size[1] = 1.2
+
+        # model = test_env.env.unwrapped.model
+        # model2 = test_env2.env.unwrapped.model
+        # joint_id = model.joint("hinge").id  # Use the actual name from your env
+        # model.dof_damping[joint_id] = 0.2  # Default is usually very small
+        # joint_id = model2.joint("hinge").id  # Use the actual name from your env
+        # model2.dof_damping[joint_id] = 0.2  # Default is usually very small
+
+        # For modified lunarlander: 
+        # maybe change gravity or add wind.
+        # try the following (output from Claude):
+        # Changing gravity (which is a single value in LunarLander)
+        # env.unwrapped.world.gravity = (0, -5.0)  # Default is (0, -10.0)
+
+        # Changing engine power
+        # env.unwrapped.MAIN_ENGINE_POWER = 20.0  # Default is 13.0
+
+        # Changing wind power
+        # env.unwrapped.WIND_POWER = 2.0  # Default is 0.0 in no-wind version
+
+        # Changing initial random position range
+        # env.unwrapped.INITIAL_RANDOM = 0.5  # Default is 1.0
+
+        # Changing leg spring constant
+        # env.unwrapped.LEG_SPRING_TORQUE = 50.0  # Default is 40.0
+
+        # Changing fuel usage
+        # env.unwrapped.SIDE_ENGINE_FUEL_COST = 0.1  # Default is 0.03
+        # env.unwrapped.MAIN_ENGINE_FUEL_COST = 0.3  # Default is 0.3
+
+        # Changing leg away/down positions for the landing gear
+        # env.unwrapped.LEG_AWAY = 20  # Default is 20
+        # env.unwrapped.LEG_DOWN = 18  # Default is 18
+
 
         # reset to apply changes
         test_env.env.reset()

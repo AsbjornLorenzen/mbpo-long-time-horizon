@@ -132,6 +132,7 @@ def rollout_model_and_populate_sac_buffer(
                         current_border_count + 1) * current_border_estimate
             print(f"Max Uncertainty of {zeta} percentile times {xi} factor: {border_for_this_rollout}")
             print(f"Updated Uncertainty threshhold is {threshold}")
+            print(f"GJS distance (rollouts included if smaller than the above threshold) {uncertainty_score}")
             reduce_time = True
         else:
             reduce_time = False
