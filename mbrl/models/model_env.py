@@ -220,6 +220,7 @@ class ModelEnv:
             actions: mbrl.types.TensorType,
             model_state: Dict[str, torch.Tensor],
             sample: bool = False,
+            k=3
     ) -> Tuple[mbrl.types.TensorType, mbrl.types.TensorType, np.ndarray, Dict, mbrl.types.TensorType, mbrl.types.TensorType]:
         """Steps the model environment with the given batch of actions.
 
@@ -265,6 +266,7 @@ class ModelEnv:
                 model_state,
                 deterministic=not sample,
                 rng=self._rng,
+                k=k,
             )
             rewards = (
                 pred_rewards

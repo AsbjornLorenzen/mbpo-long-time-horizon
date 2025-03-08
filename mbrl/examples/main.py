@@ -8,6 +8,7 @@ import mbrl.algorithms.macura as macura
 import mbrl.algorithms.macura_new as macura_new
 import mbrl.algorithms.m2ac as m2ac
 import mbrl.algorithms.macura_modified_env as macura_modified_env
+import mbrl.algorithms.macura_top_k as macura_top_k
 
 import os
 
@@ -52,7 +53,7 @@ def run(cfg: omegaconf.DictConfig):
     if cfg.algorithm.name == "macura_top_k":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
-        return macura_new.train(env, test_env,test_env2 ,term_fn, cfg)
+        return macura_top_k.train(env, test_env,test_env2 ,term_fn, cfg)
     
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)

@@ -401,6 +401,7 @@ class GaussianMLP(Ensemble):
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
         rng: Optional[torch.Generator] = None,
+        k=3,
     ) -> Tuple[torch.Tensor, Optional[Dict[str, torch.Tensor]], Optional[torch.Tensor], Optional[torch.Tensor]]:
         """Samples an output from the model using random model propagation
 
@@ -432,13 +433,16 @@ class GaussianMLP(Ensemble):
                 model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
                 tells which model was chosen for which observation
         """
-        ensemble_size = 4
-        rollout_length = 100000
-        observations_size = 12
+      
 
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
         vars_of_all_ensembles = logvars_of_all_ensembles.exp()
         stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
+        
+
+        ensemble_size = k
+        rollout_length = means_of_all_ensembles.shape[1] # TODO: convert this over to something proper.
+        observations_size = means_of_all_ensembles.shape[2]
 
         
         model_combinations = torch.tensor(list(itertools.combinations(range(7), ensemble_size)))  # Shape: (35, 3)

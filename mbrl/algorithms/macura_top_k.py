@@ -45,6 +45,7 @@ def rollout_model_and_populate_sac_buffer(
         pink_noise_exploration_mod: bool=False,
         xi:float = 1.0,
         zeta: int = 95,
+        k: int = 3,
 
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
@@ -103,7 +104,7 @@ def rollout_model_and_populate_sac_buffer(
         # model_indices is (batchsize) and is the chosen model_indices of the ensemebles [0,ensemble_size)
         (pred_next_obs, pred_rewards, pred_terminateds, model_state,
          chosen_means, chosen_stds, means_of_all_ensembles,
-         stds_of_all_ensembles, model_indices) = model_env.step_plus_gaussians_top_k(action, model_state, sample=True)
+         stds_of_all_ensembles, model_indices) = model_env.step_plus_gaussians_top_k(action, model_state, sample=True, k=k)
 
         ensemble_size = model_env.dynamics_model.model.ensemble_size
 
@@ -455,7 +456,8 @@ def train(
                     env_steps,
                     pink_noise_exploration_mod,
                     xi,
-                    zeta
+                    zeta,
+                    k=cfg.algorithm.k,
                 )
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
                 if current_border_estimate_list_full == False:

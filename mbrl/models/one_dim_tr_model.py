@@ -353,6 +353,7 @@ class OneDTransitionRewardModel(Model):
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
         rng: Optional[torch.Generator] = None,
+        k = 3, 
     ) -> Tuple[
         torch.Tensor,
         Optional[torch.Tensor],
@@ -393,7 +394,7 @@ class OneDTransitionRewardModel(Model):
             )
         (preds, next_model_state, chosen_means, chosen_stds,
          means_of_all_ensembles, stds_of_all_ensembles, model_indices) = self.model.sample_1d_plus_gaussians_top_k(
-            model_in, model_state, rng=rng, deterministic=deterministic
+            model_in, model_state, rng=rng, deterministic=deterministic, k=k
         )
         next_observs = preds[:, :-1] if self.learned_rewards else preds
         if self.target_is_delta:

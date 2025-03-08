@@ -1,4 +1,7 @@
-name: "macura_new"
+name: "macura_top_k"
+
+
+k: 4
 
 normalize: true
 normalize_double_precision: true
