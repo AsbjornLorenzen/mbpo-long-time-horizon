@@ -9,6 +9,16 @@ import mbrl.algorithms.macura_new as macura_new
 import mbrl.algorithms.m2ac as m2ac
 import mbrl.algorithms.macura_modified_env as macura_modified_env
 
+import os
+
+"""
+Use this to decide what GPU to run on!
+"""
+os.environ['CUDA_DEVICE_ORDER']="PCI_BUS_ID"
+os.environ['CUDA_VISIBLE_DEVICES']="0"
+
+
+
 import mbrl.util.env
 
 @hydra.main(config_path="conf", config_name="main")

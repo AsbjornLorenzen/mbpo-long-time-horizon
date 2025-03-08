@@ -432,17 +432,19 @@ class GaussianMLP(Ensemble):
                 model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
                 tells which model was chosen for which observation
         """
-
+        ensemble_size = 4
+        rollout_length = 100000
+        observations_size = 12
 
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
         vars_of_all_ensembles = logvars_of_all_ensembles.exp()
         stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
 
         
-        model_combinations = torch.tensor(list(itertools.combinations(range(7), 4)))  # Shape: (35, 3)
+        model_combinations = torch.tensor(list(itertools.combinations(range(7), ensemble_size)))  # Shape: (35, 3)
         
-        subset_means = torch.empty((4, 5000, 5), device='cuda')
-        subset_stds = torch.empty((4, 5000, 5), device='cuda')
+        subset_means = torch.empty((ensemble_size, rollout_length, observations_size), device='cuda')
+        subset_stds = torch.empty((ensemble_size, rollout_length, observations_size), device='cuda')
         
         all_means = means_of_all_ensembles[model_combinations]  # Shape: (35, 3, 5000, 5)
         all_stds = stds_of_all_ensembles[model_combinations]    # Shape: (35, 3, 5000, 5)
@@ -450,7 +452,7 @@ class GaussianMLP(Ensemble):
         
         results = torch.stack([torch.tensor(dm.calc_pairwise_symmetric_uncertainty_for_measure_function(all_means[x],
                                                                     all_stds[x],
-                                                                    4,
+                                                                    ensemble_size,
                                                                     dm.calc_uncertainty_score_genShen)) for x in range(35)])
 
 
@@ -458,14 +460,14 @@ class GaussianMLP(Ensemble):
         best_comb_indices = results.argmin(dim=0)
         best_combinations = model_combinations[best_comb_indices].permute(1,0)
 
-        batch_indices = torch.arange(5000)
+        batch_indices = torch.arange(rollout_length)
 
         subset_means = means_of_all_ensembles[best_combinations, batch_indices, :]
         subset_stds = stds_of_all_ensembles[best_combinations, batch_indices, :]
       
 
 
-        model_indices = torch.randint(4, (model_input.shape[0],))
+        model_indices = torch.randint(ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
         
         chosen_means = subset_means[model_indices,list_to_iterate,:]
