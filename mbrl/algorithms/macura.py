@@ -110,8 +110,6 @@ def rollout_model_and_populate_sac_buffer(
         vars_of_all_ensembles = torch.pow(stds_of_all_ensembles, 2)
         # -------------------------------------------------------------------#
 
-        print( means_of_all_ensembles.shape[0])
-
         # -------------------------------------------------------------------#
 
         jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,

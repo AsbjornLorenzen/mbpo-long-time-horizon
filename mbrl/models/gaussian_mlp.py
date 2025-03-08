@@ -395,7 +395,7 @@ class GaussianMLP(Ensemble):
         self.load_state_dict(model_dict["state_dict"])
         self.elite_models = model_dict["elite_models"]
 
-    def sample_1d_plus_gaussians(
+    def sample_1d_plus_gaussians_(
         self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
@@ -474,7 +474,7 @@ class GaussianMLP(Ensemble):
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                 means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
     
-    def sample_1d_plus_gaussians_(
+    def sample_1d_plus_gaussians(
         self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
