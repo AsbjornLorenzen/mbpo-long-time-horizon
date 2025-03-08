@@ -103,7 +103,7 @@ def rollout_model_and_populate_sac_buffer(
         # model_indices is (batchsize) and is the chosen model_indices of the ensemebles [0,ensemble_size)
         (pred_next_obs, pred_rewards, pred_terminateds, model_state,
          chosen_means, chosen_stds, means_of_all_ensembles,
-         stds_of_all_ensembles, model_indices) = model_env.step_plus_gaussians(action, model_state, sample=True)
+         stds_of_all_ensembles, model_indices) = model_env.step_plus_gaussians_top_k(action, model_state, sample=True)
 
         ensemble_size = model_env.dynamics_model.model.ensemble_size
 
@@ -117,7 +117,10 @@ def rollout_model_and_populate_sac_buffer(
                                                                                 means_of_all_ensembles.shape[0],
                                                                               dm.calc_uncertainty_score_genShen)
         
-       
+        threshold_score = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(chosen_means,
+                                                                              chosen_stds,
+                                                                              chosen_means.shape[0],
+                                                                              dm.calc_uncertainty_score_genShen)
         uncertainty_score = jsp
 
         # -------------------------------------------------------------------#
@@ -127,7 +130,7 @@ def rollout_model_and_populate_sac_buffer(
         # function
 
         if i == 0:
-            zeta_percentile = np.percentile(jsp, zeta)
+            zeta_percentile = np.percentile(threshold_score, zeta)
             border_for_this_rollout = zeta_percentile * xi
             threshold = 1 / (current_border_count + 1) * border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * current_border_estimate

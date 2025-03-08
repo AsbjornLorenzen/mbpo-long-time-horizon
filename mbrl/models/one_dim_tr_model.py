@@ -347,6 +347,65 @@ class OneDTransitionRewardModel(Model):
         return (next_observs, rewards, None, next_model_state, chosen_means, chosen_stds,
                 means_of_all_ensembles,stds_of_all_ensembles,model_indices)
 
+    def sample_plus_gaussians_top_k(
+        self,
+        act: torch.Tensor,
+        model_state: Dict[str, torch.Tensor],
+        deterministic: bool = False,
+        rng: Optional[torch.Generator] = None,
+    ) -> Tuple[
+        torch.Tensor,
+        Optional[torch.Tensor],
+        Optional[torch.Tensor],
+        Optional[Dict[str, torch.Tensor]],
+        torch.Tensor,
+        torch.Tensor
+    ]:
+        """Samples next observations and rewards from the underlying 1-D model.
+
+        This wrapper assumes that the underlying model's sample method returns a tuple
+        with just one tensor, which concatenates next_observation and reward.
+
+        Args:
+            act (tensor): the action a_t
+            model_state (tensor): the model state s_t
+            deterministic (bool): if ``True``, the model returns a deterministic
+                "sample" (e.g., the mean prediction). Defaults to ``False``.
+            rng (random number generator): a rng to use for sampling.
+
+        Returns:
+            (tuple of nine tensors): predicted next_observation (o_{t+1}) and rewards (r_{t+1}), dones and model state,
+            also for the m2ac algorithm:
+            chosen_means is [model_input.shape[0], observationsize+1] Tensor of means chosen by model_indices
+            chosen_stds is [model_input.shape[0], observationsize+1] Tensor of stds chosen by model_indices
+            means_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
+            the mean of every(ensemble_size many) MLP for each observation action pair
+            stds_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
+            the stds of every(ensemble_size many) MLP for each observation action pair
+            model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
+            tells which model was chosen for which observation
+        """
+        obs = model_util.to_tensor(model_state["obs"]).to(self.device)
+        model_in = self._get_model_input(model_state["obs"], act)
+        if not hasattr(self.model, "sample_1d"):
+            raise RuntimeError(
+                "OneDTransitionRewardModel requires wrapped model to define method sample_1d"
+            )
+        (preds, next_model_state, chosen_means, chosen_stds,
+         means_of_all_ensembles, stds_of_all_ensembles, model_indices) = self.model.sample_1d_plus_gaussians_top_k(
+            model_in, model_state, rng=rng, deterministic=deterministic
+        )
+        next_observs = preds[:, :-1] if self.learned_rewards else preds
+        if self.target_is_delta:
+            tmp_ = next_observs + obs
+            for dim in self.no_delta_list:
+                tmp_[:, dim] = next_observs[:, dim]
+            next_observs = tmp_
+        rewards = preds[:, -1:] if self.learned_rewards else None
+        next_model_state["obs"] = next_observs
+        return (next_observs, rewards, None, next_model_state, chosen_means, chosen_stds,
+                means_of_all_ensembles,stds_of_all_ensembles,model_indices)
+
     def reset(
         self, obs: torch.Tensor, rng: Optional[torch.Generator] = None
     ) -> Dict[str, torch.Tensor]:

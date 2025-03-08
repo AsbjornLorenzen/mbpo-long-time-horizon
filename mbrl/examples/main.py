@@ -49,6 +49,11 @@ def run(cfg: omegaconf.DictConfig):
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         return macura_new.train(env, test_env,test_env2 ,term_fn, cfg)
     
+    if cfg.algorithm.name == "macura_top_k":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return macura_new.train(env, test_env,test_env2 ,term_fn, cfg)
+    
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
