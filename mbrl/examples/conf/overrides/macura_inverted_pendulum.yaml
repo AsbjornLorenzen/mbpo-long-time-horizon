@@ -5,7 +5,7 @@ term_fn: "inverted_pendulum"
 reward_fn: "inverted_pendulum"
 
 
-num_steps: 3000
+num_steps: 2000
 epoch_length: 100
 num_elites: 5
 patience: 5

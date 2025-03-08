@@ -87,6 +87,7 @@ def rollout_model_and_populate_sac_buffer(
         initial_obs_batch=cast(np.ndarray, initial_obs),
         return_as_np=True,
     )
+    
     obs = initial_obs
     uncertainty_scores_for_each_rollout_sorted = []
     number_of_certain_transitions_each_rollout = []
@@ -128,7 +129,7 @@ def rollout_model_and_populate_sac_buffer(
 
         # -------------------------------------------------------------------#
     
-
+        
         model_combinations = list(itertools.combinations(range(7), 3)) 
 
         lowest_jsp = torch.full((5000,), 100000.)

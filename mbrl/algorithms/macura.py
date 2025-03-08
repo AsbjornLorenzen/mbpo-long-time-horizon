@@ -115,7 +115,7 @@ def rollout_model_and_populate_sac_buffer(
 
         jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
                                                                               vars_of_all_ensembles,
-                                                                              ensemble_size,
+                                                                              3,
                                                                               dm.calc_uncertainty_score_genShen)
         uncertainty_score = jsp
 
@@ -328,7 +328,7 @@ def train(
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer_real_env,
     )
-
+    
     # ---------------------------------------------------------
     # --------------------- Start Training---------------------
     # ---------------------------------------------------------

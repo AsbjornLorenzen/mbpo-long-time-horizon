@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 import pathlib
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+import mbrl.util.distance_measures as dm
 
 import hydra
 import omegaconf
@@ -15,6 +16,7 @@ import mbrl.util.math
 
 from .model import Ensemble
 from .util import EnsembleLinearLayer, truncated_normal_init, EnsembleBiasLayer
+import itertools
 
 
 class GaussianMLP(Ensemble):
@@ -430,7 +432,89 @@ class GaussianMLP(Ensemble):
                 model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
                 tells which model was chosen for which observation
         """
+
+
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
+        vars_of_all_ensembles = logvars_of_all_ensembles.exp()
+        stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
+
+        
+        model_combinations = torch.tensor(list(itertools.combinations(range(7), 3)))  # Shape: (35, 3)
+        
+        print(model_combinations.shape)
+        subset_means = torch.empty((3, 5000, 5), device='cuda')
+        subset_stds = torch.empty((3, 5000, 5), device='cuda')
+        
+        all_means = means_of_all_ensembles[model_combinations]  # Shape: (35, 3, 5000, 5)
+        all_stds = stds_of_all_ensembles[model_combinations]    # Shape: (35, 3, 5000, 5)
+
+        print(all_means.shape)
+        
+        results = torch.stack([torch.tensor(dm.calc_pairwise_symmetric_uncertainty_for_measure_function(all_means[x],
+                                                                    all_stds[x],
+                                                                    3,
+                                                                    dm.calc_uncertainty_score_genShen)) for x in range(35)])
+
+
+        best_comb_indices = results.argmin(dim=0)
+        best_combinations = model_combinations[best_comb_indices].permute(1,0)
+
+        batch_indices = torch.arange(5000)
+
+        subset_means = means_of_all_ensembles[best_combinations, batch_indices, :]
+        subset_stds = stds_of_all_ensembles[best_combinations, batch_indices, :]
+      
+
+
+        model_indices = torch.randint(3, (model_input.shape[0],))
+        list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
+        
+        chosen_means = subset_means[model_indices,list_to_iterate,:]
+        chosen_stds = subset_stds[model_indices,list_to_iterate,:]
+        
+        return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
+                chosen_means, chosen_stds,  subset_means, subset_stds, model_indices)
+    
+    def sample_1d_plus_gaussians_save(
+        self,
+        model_input: torch.Tensor,
+        model_state: Dict[str, torch.Tensor],
+        deterministic: bool = False,
+        rng: Optional[torch.Generator] = None,
+    ) -> Tuple[torch.Tensor, Optional[Dict[str, torch.Tensor]], Optional[torch.Tensor], Optional[torch.Tensor]]:
+        """Samples an output from the model using random model propagation
+
+        This method will be used by :class:`ModelEnv` to simulate a transition of the form.
+            outputs_t+1, s_t+1 = sample(model_input_t, s_t), where
+
+            - model_input_t: observation and action at time t, concatenated across axis=1.
+            - s_t: model state at time t (as returned by :meth:`reset()` or :meth:`sample()`.
+            - outputs_t+1: observation and reward at time t+1, concatenated across axis=1.
+
+        Args:
+            model_input (torch.Tensor): the observation and action at.
+            model_state (torch.Tensor): the model state st. Must contain a key
+                "propagation_indices" to use for uncertainty propagation.
+            deterministic (bool): if ``True``, the model returns a deterministic
+                "sample" (e.g., the mean prediction). Defaults to ``False``.
+            rng (`torch.Generator`, optional): an optional random number generator
+                to use.
+
+        Returns:
+            (tuple): (predicted observation  plus reward, concatinated on axis1,
+                model state dictionary,
+                chosen_means is [model_input.shape[0], observationsize+1] Tensor of means chosen by model_indices
+                chosen_stds is [model_input.shape[0], observationsize+1] Tensor of stds chosen by model_indices
+                means_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
+                the mean of every(ensemble_size many) MLP for each observation action pair
+                stds_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
+                the stds of every(ensemble_size many) MLP for each observation action pair
+                model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
+                tells which model was chosen for which observation
+        """
+        means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
+
+
         #choose random model
         model_indices = torch.randint(self.ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
