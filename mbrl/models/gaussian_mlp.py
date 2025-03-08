@@ -439,23 +439,22 @@ class GaussianMLP(Ensemble):
         stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
 
         
-        model_combinations = torch.tensor(list(itertools.combinations(range(7), 3)))  # Shape: (35, 3)
+        model_combinations = torch.tensor(list(itertools.combinations(range(7), 4)))  # Shape: (35, 3)
         
-        print(model_combinations.shape)
-        subset_means = torch.empty((3, 5000, 5), device='cuda')
-        subset_stds = torch.empty((3, 5000, 5), device='cuda')
+        subset_means = torch.empty((4, 5000, 5), device='cuda')
+        subset_stds = torch.empty((4, 5000, 5), device='cuda')
         
         all_means = means_of_all_ensembles[model_combinations]  # Shape: (35, 3, 5000, 5)
         all_stds = stds_of_all_ensembles[model_combinations]    # Shape: (35, 3, 5000, 5)
 
-        print(all_means.shape)
         
         results = torch.stack([torch.tensor(dm.calc_pairwise_symmetric_uncertainty_for_measure_function(all_means[x],
                                                                     all_stds[x],
-                                                                    3,
+                                                                    4,
                                                                     dm.calc_uncertainty_score_genShen)) for x in range(35)])
 
 
+        
         best_comb_indices = results.argmin(dim=0)
         best_combinations = model_combinations[best_comb_indices].permute(1,0)
 
@@ -466,16 +465,16 @@ class GaussianMLP(Ensemble):
       
 
 
-        model_indices = torch.randint(3, (model_input.shape[0],))
+        model_indices = torch.randint(4, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
         
         chosen_means = subset_means[model_indices,list_to_iterate,:]
         chosen_stds = subset_stds[model_indices,list_to_iterate,:]
         
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
-                chosen_means, chosen_stds,  subset_means, subset_stds, model_indices)
+                means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
     
-    def sample_1d_plus_gaussians_save(
+    def sample_1d_plus_gaussians_(
         self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
@@ -525,4 +524,4 @@ class GaussianMLP(Ensemble):
 
         chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
-                chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices)
+                means_of_all_ensembles, stds_of_all_ensembles,  means_of_all_ensembles, stds_of_all_ensembles, model_indices)
