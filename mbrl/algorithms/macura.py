@@ -138,9 +138,10 @@ def rollout_model_and_populate_sac_buffer(
         else:
             reduce_time = False
 
-
-        indices_of_certain_transitions = uncertainty_score < threshold
-
+        # TODO: change this back
+        #indices_of_certain_transitions = uncertainty_score < threshold
+        indices_of_certain_transitions = uncertainty_score == uncertainty_score
+        
         # certain_bool_map contains true for storing transition if it is certain enough and false else
         if i ==0:
             certain_bool_map_over_all_rollouts[indices_of_certain_transitions] = True

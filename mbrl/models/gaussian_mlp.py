@@ -17,7 +17,8 @@ import mbrl.util.math
 from .model import Ensemble
 from .util import EnsembleLinearLayer, truncated_normal_init, EnsembleBiasLayer
 import itertools
-
+import random
+random.seed(10)
 
 class GaussianMLP(Ensemble):
     """Implements an ensemble of multi-layer perceptrons each modeling a Gaussian distribution.
@@ -394,6 +395,7 @@ class GaussianMLP(Ensemble):
         model_dict = torch.load(pathlib.Path(load_dir) / self._MODEL_FNAME)
         self.load_state_dict(model_dict["state_dict"])
         self.elite_models = model_dict["elite_models"]
+    
 
     def sample_1d_plus_gaussians_top_k(
         self,
@@ -447,6 +449,7 @@ class GaussianMLP(Ensemble):
         
         model_combinations = torch.tensor(list(itertools.combinations(range(7), ensemble_size)))  # Shape: (35, 3)
         
+ 
         subset_means = torch.empty((ensemble_size, rollout_length, observations_size), device='cuda')
         subset_stds = torch.empty((ensemble_size, rollout_length, observations_size), device='cuda')
         
@@ -457,11 +460,17 @@ class GaussianMLP(Ensemble):
         results = torch.stack([torch.tensor(dm.calc_pairwise_symmetric_uncertainty_for_measure_function(all_means[x],
                                                                     all_stds[x],
                                                                     ensemble_size,
-                                                                    dm.calc_uncertainty_score_genShen)) for x in range(35)])
+                                                                    dm.calc_uncertainty_score_genShen)) for x in range(model_combinations.shape[0])])
 
 
         
-        best_comb_indices = results.argmin(dim=0)
+        threshold = random.random()
+
+        if threshold < 0.5:
+            best_comb_indices = results.argmax(dim=0)
+        else:
+            best_comb_indices = results.argmin(dim=0)
+        
         best_combinations = model_combinations[best_comb_indices].permute(1,0)
 
         batch_indices = torch.arange(rollout_length)
@@ -471,15 +480,18 @@ class GaussianMLP(Ensemble):
       
 
 
+
+
         model_indices = torch.randint(ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
-        
+            
         chosen_means = subset_means[model_indices,list_to_iterate,:]
         chosen_stds = subset_stds[model_indices,list_to_iterate,:]
-        
+            
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
-                means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
-    
+                    means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
+       
+
     def sample_1d_plus_gaussians(
         self,
         model_input: torch.Tensor,
