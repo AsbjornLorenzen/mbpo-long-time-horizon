@@ -187,7 +187,7 @@ def rollout_model_and_populate_sac_buffer(
             return_as_np=True,
         )
 
-    print(f"Number of certain transitions: {sum(number_of_certain_transitions_each_rollout) / len(number_of_certain_transitions_each_rollout)}")
+    print(f"Number of certain transitions: {sum(number_of_certain_transitions_each_rollout) / max(1,len(number_of_certain_transitions_each_rollout))}")
         
     
     return new_sac_size, border_for_this_rollout
