@@ -139,9 +139,9 @@ def rollout_model_and_populate_sac_buffer(
             reduce_time = False
 
         # TODO: change this back
-        #indices_of_certain_transitions = uncertainty_score < threshold
-        indices_of_certain_transitions = uncertainty_score == uncertainty_score
-        
+        indices_of_certain_transitions = uncertainty_score < threshold
+        #indices_of_certain_transitions = uncertainty_score == uncertainty_score
+
         # certain_bool_map contains true for storing transition if it is certain enough and false else
         if i ==0:
             certain_bool_map_over_all_rollouts[indices_of_certain_transitions] = True
@@ -184,8 +184,9 @@ def rollout_model_and_populate_sac_buffer(
             return_as_np=True,
         )
 
-    print(f"Number of certain transitions: {sum(number_of_certain_transitions_each_rollout) / max(1, len(number_of_certain_transitions_each_rollout))}")
-        
+    print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
+    print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
+    print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     
     return new_sac_size, border_for_this_rollout
 

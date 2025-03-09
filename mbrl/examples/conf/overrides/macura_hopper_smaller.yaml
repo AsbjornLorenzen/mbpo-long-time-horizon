@@ -2,8 +2,9 @@
 env: "gym___Hopper-v4"
 term_fn: "hopper"
 
-num_steps: 125000
-epoch_length: 1000
+num_steps: 60000
+
+epoch_length: 500
 patience: 5
 improvement_threshold: 0.01
 model_lr: 0.0003

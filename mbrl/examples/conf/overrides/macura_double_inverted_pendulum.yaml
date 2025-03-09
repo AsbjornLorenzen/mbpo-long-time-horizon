@@ -1,8 +1,10 @@
 # @package _group_
-env: "gym___Hopper-v4"
-term_fn: "hopper"
+env: "gym___InvertedDoublePendulum-v4"
 
-num_steps: 125000
+term_fn: "no_termination"
+trial_length: 1000
+
+num_steps: 15000
 epoch_length: 1000
 patience: 5
 improvement_threshold: 0.01
@@ -12,10 +14,11 @@ model_batch_size: 256
 model_hidden_size: 200
 validation_ratio: 0.2
 freq_train_model: 250
-effective_model_rollouts_per_step: 400
-num_sac_updates_per_step: 30
+effective_model_rollouts_per_step: 400 
+num_sac_updates_per_step: 20
 sac_updates_every_steps: 1
 num_epochs_to_retain_sac_buffer: 1
+debug_mode: true
 
 minimum_variance_exponent: -10
 
@@ -28,7 +31,7 @@ sac_alpha: 0.2
 sac_policy: "Gaussian"
 sac_target_update_interval: 4
 sac_automatic_entropy_tuning: true
-sac_target_entropy: 0 #-3
+sac_target_entropy: -1 #-3
 sac_hidden_size: 1024
 sac_lr: 0.0003
 sac_batch_size: 256
@@ -38,6 +41,10 @@ pink_noise_exploration_mod: False
 #options are pink,white,det
 exploration_type_env: "pink"
 max_rollout_length: 10
+pink_noise_exploration_env: True
 
-xi: 30.0
+
+xi: 1
 zeta: 95
+
+seed: 1

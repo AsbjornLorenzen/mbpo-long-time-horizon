@@ -5,8 +5,8 @@ term_fn: "inverted_pendulum"
 reward_fn: "inverted_pendulum"
 
 
-num_steps: 2000
-epoch_length: 100
+num_steps: 15000
+epoch_length: 1000
 patience: 5
 improvement_threshold: 0.01
 model_lr: 0.0003
@@ -15,8 +15,8 @@ model_batch_size: 256
 model_hidden_size: 200
 validation_ratio: 0.2
 freq_train_model: 250
-effective_model_rollouts_per_step: 20
-num_sac_updates_per_step: 30
+effective_model_rollouts_per_step: 200 
+num_sac_updates_per_step: 20
 sac_updates_every_steps: 1
 num_epochs_to_retain_sac_buffer: 1
 debug_mode: true
@@ -44,8 +44,8 @@ exploration_type_env: "pink"
 max_rollout_length: 10
 pink_noise_exploration_env: True
 
-xi: 30.0
-zeta: 0
 
+xi: 0.3
+zeta: 95
 
 seed: 1
