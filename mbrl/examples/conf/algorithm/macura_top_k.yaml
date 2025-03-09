@@ -33,7 +33,7 @@ agent:
     high: ???
     shape: ???
   args:
-    layernorm: false 
+    layernorm: false  
     gamma: ${overrides.sac_gamma}
     tau: ${overrides.sac_tau}
     alpha: ${overrides.sac_alpha}

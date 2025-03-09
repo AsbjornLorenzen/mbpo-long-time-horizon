@@ -476,11 +476,11 @@ class GaussianMLP(Ensemble):
 
 
 
-        model_indices = torch.randint(7, (model_input.shape[0],))
+        model_indices = torch.randint(ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
             
-        chosen_means = means_of_all_ensembles[model_indices,list_to_iterate,:]
-        chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
+        chosen_means = subset_means[model_indices,list_to_iterate,:]
+        chosen_stds = subset_stds[model_indices,list_to_iterate,:]
             
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                     means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
