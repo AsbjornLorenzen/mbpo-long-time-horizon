@@ -118,10 +118,11 @@ def rollout_model_and_populate_sac_buffer(
                                                                                 means_of_all_ensembles.shape[0],
                                                                               dm.calc_uncertainty_score_genShen)
         
-        threshold_score = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(chosen_means,
-                                                                              chosen_stds,
-                                                                              chosen_means.shape[0],
-                                                                              dm.calc_uncertainty_score_genShen)
+        # threshold_score = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(chosen_means,
+        #                                                                      chosen_stds,
+        #                                                                      chosen_means.shape[0],
+        #
+        #                                                                       dm.calc_uncertainty_score_genShen)
         uncertainty_score = jsp
 
         # -------------------------------------------------------------------#
@@ -131,7 +132,7 @@ def rollout_model_and_populate_sac_buffer(
         # function
 
         if i == 0:
-            zeta_percentile = np.percentile(threshold_score, zeta)
+            zeta_percentile = np.percentile(uncertainty_score, zeta)
             border_for_this_rollout = zeta_percentile * xi
             threshold = 1 / (current_border_count + 1) * border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * current_border_estimate
@@ -188,8 +189,9 @@ def rollout_model_and_populate_sac_buffer(
             return_as_np=True,
         )
 
-    print(f"Number of certain transitions: {number_of_certain_transitions}")
-        
+    print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
+    print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
+    print(f"Biggest Rollout Length: {np.max(rollout_tracker)}")    
     
     return new_sac_size, border_for_this_rollout
 

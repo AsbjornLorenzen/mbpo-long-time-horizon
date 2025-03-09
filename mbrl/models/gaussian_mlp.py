@@ -443,7 +443,7 @@ class GaussianMLP(Ensemble):
         
 
         ensemble_size = k
-        rollout_length = means_of_all_ensembles.shape[1] # TODO: convert this over to something proper.
+        rollout_length = means_of_all_ensembles.shape[1] 
         observations_size = means_of_all_ensembles.shape[2]
 
         
@@ -463,13 +463,7 @@ class GaussianMLP(Ensemble):
                                                                     dm.calc_uncertainty_score_genShen)) for x in range(model_combinations.shape[0])])
 
 
-        
-        threshold = random.random()
-
-        if threshold < 0.5:
-            best_comb_indices = results.argmax(dim=0)
-        else:
-            best_comb_indices = results.argmin(dim=0)
+        best_comb_indices = results.argmin(dim=0)
         
         best_combinations = model_combinations[best_comb_indices].permute(1,0)
 
@@ -482,11 +476,11 @@ class GaussianMLP(Ensemble):
 
 
 
-        model_indices = torch.randint(ensemble_size, (model_input.shape[0],))
+        model_indices = torch.randint(7, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
             
-        chosen_means = subset_means[model_indices,list_to_iterate,:]
-        chosen_stds = subset_stds[model_indices,list_to_iterate,:]
+        chosen_means = means_of_all_ensembles[model_indices,list_to_iterate,:]
+        chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
             
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                     means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
