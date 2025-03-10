@@ -13,7 +13,7 @@ model_hidden_size: 200
 validation_ratio: 0.2
 freq_train_model: 250
 effective_model_rollouts_per_step: 400
-num_sac_updates_per_step: 30
+num_sac_updates_per_step: 60
 sac_updates_every_steps: 1
 num_epochs_to_retain_sac_buffer: 1
 
@@ -39,5 +39,5 @@ pink_noise_exploration_mod: False
 exploration_type_env: "pink"
 max_rollout_length: 10
 
-xi: 30.0
+xi: 1 # NOTE: is 30 in paper
 zeta: 95

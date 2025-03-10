@@ -494,10 +494,10 @@ def train(
                 if not silent and updates_made % cfg.log_frequency_agent == 0:
                     logger.dump(updates_made, save=True)
 
-            # ------ Epoch ended (evaluate and save model) ------
-
-            if env_steps % epoch_length == 0:
-                print(f"Epoch ended - env-steps:{env_steps}")
+            # Evaluate every 200 steps
+            EVAL_FREQUENCY = 200
+            if env_steps % EVAL_FREQUENCY == 0:
+                print(f"Running evaluation - env-steps:{env_steps}")
                 avg_reward = mbrl.util.common.evaluate(
                     test_env, agent, cfg.algorithm.num_eval_episodes, video_recorder
                 )
@@ -510,6 +510,7 @@ def train(
                         "rollout_length": max_rollout_length,
                     },
                 )
+            if env_steps % epoch_length == 0:
                 if save_video:
                     video_recorder.save(f"{epoch}.mp4")
                 if avg_reward > best_eval_reward:

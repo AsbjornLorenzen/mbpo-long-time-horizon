@@ -32,6 +32,34 @@ def calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensemb
     sum_uncertainty = sum_uncertainty.cpu().numpy()
     return sum_uncertainty
 
+def calc_pairwise_symmetric_uncertainty_for_each_model(means_of_all_ensembles: torch.Tensor,
+                                                             vars_of_all_ensembles: torch.Tensor,
+                                                             ensemble_size: int, measure_func):
+    """
+    @param means_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+    @param vars_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+    @param ensemble_size: Number of components of probabilistic ensemble
+    @param measure_func: the measure function to calculate the pairwise model disagreement
+    @return: pairwise symmetric(all pairs once and not both) uncertainty score of size batchsize
+    """
+    distances = torch.zeros(ensemble_size, means_of_all_ensembles.shape[1]).to('cuda')
+    print(f"Sanity check: distances have shape {distances.shape}")
+
+    for i in range(ensemble_size):
+        for j in range(ensemble_size):
+            if i == j:
+                continue
+            distances[i] += measure_func(means_of_all_ensembles[i],
+                                            vars_of_all_ensembles[i],
+                                            means_of_all_ensembles[j],
+                                            vars_of_all_ensembles[j])
+    
+    avg_distances = distances / (ensemble_size - 1)
+    avg_distances = avg_distances.cpu().numpy()
+
+    return avg_distances
+
+
 def calc_pairwise_not_symmetric_uncertainty_for_measure_function(means_of_all_ensembles: torch.Tensor,
                                                                  vars_of_all_ensembles: torch.Tensor,
                                                                  ensemble_size: int, measure_func):
