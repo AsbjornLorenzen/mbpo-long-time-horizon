@@ -1,7 +1,7 @@
 # @package _group_
 env: "gym___InvertedDoublePendulum-v4"
 
-term_fn: "no_termination"
+term_fn: "double_inverted_pendulum"
 trial_length: 1000
 
 num_steps: 15000

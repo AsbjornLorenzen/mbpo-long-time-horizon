@@ -57,6 +57,51 @@ def inverted_pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor
 
 
 
+def double_inverted_pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    assert len(next_obs.shape) == 2
+    
+    def compute_second_pole_height(L1, L2, sin_theta1, cos_theta1, sin_theta2, cos_theta2):
+        """
+        Computes the height of the second pole in the Double Inverted Pendulum environment.
+        
+        Parameters:
+        - L1: Length of the first pole
+        - L2: Length of the second pole
+        - sin_theta1: Sine of the angle between the cart and the first pole
+        - cos_theta1: Cosine of the angle between the cart and the first pole
+        - sin_theta2: Sine of the angle between the two poles
+        - cos_theta2: Cosine of the angle between the two poles
+        
+        Returns:
+        - y2: Height of the second pole's top end
+        """
+        y1 = L1 * cos_theta1
+    
+        # Compute height of the second pole's top using trigonometric sum identity
+        y2 = y1 + L2 * (cos_theta1 * cos_theta2 - sin_theta1 * sin_theta2)
+    
+        return y2
+
+    
+    # assumed from the docs.
+    L1 = 0.5
+    L2 = 0.5
+
+    sin_theta1 = next_obs[:, 1]
+    cos_theta1 = next_obs[:, 3]
+
+    sin_theta2 = next_obs[:, 2]
+    cos_theta2 = next_obs[:, 4]
+
+
+    y_values = compute_second_pole_height(L1, L2, sin_theta1, cos_theta1, sin_theta2, cos_theta2)
+
+    not_done = torch.isfinite(next_obs).all(-1)  * (y_values > 1)
+    done = ~not_done
+
+    done = done[:, None]
+    return done
+    
 
 def no_termination(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     assert len(next_obs.shape) == 2
@@ -65,18 +110,6 @@ def no_termination(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     done = done[:, None]
     return done
 
-
-def continuous_lunar_lander(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor: 
-    assert len(next_obs.shape) == 2 
-
-    x = next_obs[:, 0]
-    y = next_obs[:, 1]
-    x_vel = next_obs[:, 2]
-    y_vel = next_obs[:, 3]
-    angle = next_obs[:, 4]
-    angle_vel = next_obs[:, 5]
-    touching_left_leg = next_obs[:, 6]
-    touching_right_leg = next_obs[:, 7]
 
 
 

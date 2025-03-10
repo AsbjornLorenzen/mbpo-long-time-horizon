@@ -184,9 +184,9 @@ def rollout_model_and_populate_sac_buffer(
             return_as_np=True,
         )
 
-    print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
-    print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
-    print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
+    #print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
+    #print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
+    # print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     
     return new_sac_size, border_for_this_rollout
 
