@@ -454,8 +454,8 @@ class OneDTransitionRewardModel(Model):
                 "OneDTransitionRewardModel requires wrapped model to define method sample_1d"
             )
         (preds, next_model_state, chosen_means, chosen_stds,
-         means_of_all_ensembles, stds_of_all_ensembles, model_indices) = self.model.sample_1d_plus_gaussians_importance_sampling(
-            model_in, model_state, rng=rng, deterministic=deterministic, k=k
+         means_of_all_ensembles, stds_of_all_ensembles, model_indices), weights = self.model.sample_1d_plus_gaussians_importance_sampling(
+            model_in, model_state, rng=rng, deterministic=deterministic
         )
         next_observs = preds[:, :-1] if self.learned_rewards else preds
         if self.target_is_delta:
@@ -466,7 +466,7 @@ class OneDTransitionRewardModel(Model):
         rewards = preds[:, -1:] if self.learned_rewards else None
         next_model_state["obs"] = next_observs
         return (next_observs, rewards, None, next_model_state, chosen_means, chosen_stds,
-                means_of_all_ensembles,stds_of_all_ensembles,model_indices)
+                means_of_all_ensembles,stds_of_all_ensembles,model_indices), weights
 
     def reset(
         self, obs: torch.Tensor, rng: Optional[torch.Generator] = None

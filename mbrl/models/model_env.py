@@ -260,7 +260,7 @@ class ModelEnv:
                 means_of_all_ensembles,
                 stds_of_all_ensembles,
                 model_indices
-            ) = self.dynamics_model.sample_plus_gaussians_importance_sampling(
+            ), weights = self.dynamics_model.sample_plus_gaussians_importance_sampling(
                 actions,
                 model_state,
                 deterministic=not sample,
@@ -289,7 +289,7 @@ class ModelEnv:
                 model_indices.cpu().numpy()
             return (next_observs, rewards, terminated, next_model_state,
                     chosen_means, chosen_stds, means_of_all_ensembles,
-                    stds_of_all_ensembles, model_indices)
+                    stds_of_all_ensembles, model_indices), weights
 
 
     def step_plus_gaussians_top_k(

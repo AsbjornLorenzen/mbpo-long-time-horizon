@@ -32,6 +32,78 @@ def calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensemb
     sum_uncertainty = sum_uncertainty.cpu().numpy()
     return sum_uncertainty
 
+# def calc_weighted_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles: torch.Tensor,
+#                                                              vars_of_all_ensembles: torch.Tensor,
+#                                                              ensemble_size: int, 
+#                                                              weights: torch.Tensor,
+#                                                              measure_func):
+#     """
+#     @param means_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+#     @param vars_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+#     @param ensemble_size: Number of components of probabilistic ensemble
+#     @param measure_func: the measure function to calculate the pairwise model disagreement
+#     @return: pairwise symmetric(all pairs once and not both) uncertainty score of size batchsize
+#     """
+#     counter_u = 1
+#     uncertainty = measure_func(means_of_all_ensembles[0],
+#                                    vars_of_all_ensembles[0],
+#                                    means_of_all_ensembles[1],
+#                                    vars_of_all_ensembles[1])
+#     sum_uncertainty = uncertainty * weights[1]
+
+#     for j in range(2, ensemble_size):
+#         for k in range(j):
+#             counter_u = counter_u + 1
+#             uncertainties = measure_func(means_of_all_ensembles[j],
+#                                             vars_of_all_ensembles[j],
+#                                             means_of_all_ensembles[k],
+#                                             vars_of_all_ensembles[k])
+#             weighted_uncertainties = uncertainties * weights[k]
+#             sum_uncertainty += weighted_uncertainties
+#     sum_uncertainty = sum_uncertainty / counter_u
+#     # Take into account that weights lowers all scores by multiplying by ensemble size
+#     sum_uncertainty *= ensemble_size
+#     sum_uncertainty = sum_uncertainty.cpu().numpy()
+#     return sum_uncertainty
+
+def calc_weighted_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles: torch.Tensor,
+                                                             vars_of_all_ensembles: torch.Tensor,
+                                                             ensemble_size: int, 
+                                                             weights: torch.Tensor,
+                                                             measure_func):
+    """
+    @param means_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+    @param vars_of_all_ensembles: Tensor with size ensemble_size x batch_size x observation_dim
+    @param ensemble_size: Number of components of probabilistic ensemble
+    @param weights: Tensor with size ensemble_size, representing the probability of each model (sums to 1)
+    @param measure_func: the measure function to calculate the pairwise model disagreement
+    @return: pairwise symmetric(all pairs once and not both) uncertainty score of size batchsize
+    """
+    sum_uncertainty = 0
+    
+    total_weight = 0
+    
+    for j in range(ensemble_size):
+        for k in range(j+1, ensemble_size):  # Start from j+1 to avoid double-counting
+            w = weights[j]
+            total_weight += w
+            
+            pair_uncertainty = measure_func(means_of_all_ensembles[j],
+                                          vars_of_all_ensembles[j],
+                                          means_of_all_ensembles[k],
+                                          vars_of_all_ensembles[k])
+            
+            sum_uncertainty += pair_uncertainty * w
+    
+    # Normalize by total pair weight
+    # Note: total_pair_weight should theoretically be 0.5 when weights sum to 1,
+    # but we calculate it explicitly for numerical stability
+    if total_weight > 0:
+        sum_uncertainty = sum_uncertainty / total_weight
+    
+    sum_uncertainty = sum_uncertainty.cpu().numpy()
+    return sum_uncertainty
+
 def calc_pairwise_symmetric_uncertainty_for_each_model(means_of_all_ensembles: torch.Tensor,
                                                              vars_of_all_ensembles: torch.Tensor,
                                                              ensemble_size: int, measure_func):

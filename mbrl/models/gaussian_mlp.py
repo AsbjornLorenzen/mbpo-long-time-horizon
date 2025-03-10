@@ -510,9 +510,13 @@ class GaussianMLP(Ensemble):
 
             # swap the dimensions
             result = result.permute(1, 0)
-            result = 1 / result # take the reciprocal
+            result = - torch.log(result)
             result = result.softmax(dim=1)
-            print(result.shape)
+
+            # Ensure no invalid values in weights
+            result = torch.clamp(result, min=1e-10)
+            result = result / result.sum(dim=1, keepdim=True)
+            
             return result
         
         weights = compute_one_to_many_disagreement(means_of_all_ensembles, stds_of_all_ensembles)
@@ -530,7 +534,7 @@ class GaussianMLP(Ensemble):
         
         chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
-                chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices)
+                chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices), weights
     
 
 

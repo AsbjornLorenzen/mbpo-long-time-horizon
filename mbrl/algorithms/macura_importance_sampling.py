@@ -103,7 +103,7 @@ def rollout_model_and_populate_sac_buffer(
         # model_indices is (batchsize) and is the chosen model_indices of the ensemebles [0,ensemble_size)
         (pred_next_obs, pred_rewards, pred_terminateds, model_state,
          chosen_means, chosen_stds, means_of_all_ensembles,
-         stds_of_all_ensembles, model_indices) = model_env.step_plus_gaussians_importance_sampling(action, model_state, sample=True)
+         stds_of_all_ensembles, model_indices), weights = model_env.step_plus_gaussians_importance_sampling(action, model_state, sample=True)
 
         ensemble_size = model_env.dynamics_model.model.ensemble_size
 
@@ -111,11 +111,21 @@ def rollout_model_and_populate_sac_buffer(
         # -------------------------------------------------------------------#
 
         # -------------------------------------------------------------------#
+        # print(f"DEBUG doing importance sampling, got weights {weights}")
+        avg_weights = torch.mean(weights, dim=0)
 
-        jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
+        # WEIGHTED METHOD
+        jsp = dm.calc_weighted_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
                                                                               vars_of_all_ensembles,
                                                                                 means_of_all_ensembles.shape[0],
+                                                                                avg_weights,
                                                                               dm.calc_uncertainty_score_genShen)
+        # OLD WAY
+        # jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
+        #                                                                       vars_of_all_ensembles,
+        #                                                                         means_of_all_ensembles.shape[0],
+        #                                                                       dm.calc_uncertainty_score_genShen)
+
         
         # threshold_score = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(chosen_means,
         #                                                                      chosen_stds,

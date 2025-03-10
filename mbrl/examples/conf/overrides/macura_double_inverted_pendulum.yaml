@@ -47,4 +47,4 @@ pink_noise_exploration_env: True
 xi: 1
 zeta: 95
 
-seed: 1
+seed: 9999
