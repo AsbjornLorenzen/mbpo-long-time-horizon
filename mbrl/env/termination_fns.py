@@ -66,6 +66,22 @@ def no_termination(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     return done
 
 
+def continuous_lunar_lander(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor: 
+    assert len(next_obs.shape) == 2 
+
+    x = next_obs[:, 0]
+    y = next_obs[:, 1]
+    x_vel = next_obs[:, 2]
+    y_vel = next_obs[:, 3]
+    angle = next_obs[:, 4]
+    angle_vel = next_obs[:, 5]
+    touching_left_leg = next_obs[:, 6]
+    touching_right_leg = next_obs[:, 7]
+
+
+
+
+
 def walker2d(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
     assert len(next_obs.shape) == 2
 
@@ -96,3 +112,5 @@ def humanoid(act: torch.Tensor, next_obs: torch.Tensor):
 
     done = done[:, None]
     return done
+
+

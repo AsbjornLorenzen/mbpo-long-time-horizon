@@ -178,7 +178,7 @@ class EnvHandler(ABC):
         term_fn, reward_fn = _get_term_and_reward_fn(cfg)
         env, reward_fn = _handle_learned_rewards_and_seed(cfg, env, reward_fn)
         return env, term_fn, reward_fn
-
+ 
     @staticmethod
     @abstractmethod
     def make_env_from_str(env_name: str) -> gym.Env:
