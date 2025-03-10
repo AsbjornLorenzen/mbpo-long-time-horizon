@@ -486,7 +486,7 @@ class GaussianMLP(Ensemble):
                     means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
     
 
-    def sample_1d_plus_gaussians(self,
+    def sample_1d_plus_gaussians_importance_sampling(self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
@@ -537,7 +537,7 @@ class GaussianMLP(Ensemble):
     
 
 
-    def sample_1d_plus_gaussians_(
+    def sample_1d_plus_gaussians(
         self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
