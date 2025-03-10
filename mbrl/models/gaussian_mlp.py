@@ -484,83 +484,58 @@ class GaussianMLP(Ensemble):
             
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                     means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
+    
 
-
-    def sample_1d_plus_gaussians_importance_sampling(
-        self,
+    def sample_1d_plus_gaussians_importance_sampling(self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
-        rng: Optional[torch.Generator] = None,
-        k=3,
-    ) -> Tuple[torch.Tensor, Optional[Dict[str, torch.Tensor]], Optional[torch.Tensor], Optional[torch.Tensor]]:
-        """Samples an output from the model using random model propagation
-
-        This method will be used by :class:`ModelEnv` to simulate a transition of the form.
-            outputs_t+1, s_t+1 = sample(model_input_t, s_t), where
-
-            - model_input_t: observation and action at time t, concatenated across axis=1.
-            - s_t: model state at time t (as returned by :meth:`reset()` or :meth:`sample()`.
-            - outputs_t+1: observation and reward at time t+1, concatenated across axis=1.
-
-        Args:
-            model_input (torch.Tensor): the observation and action at.
-            model_state (torch.Tensor): the model state st. Must contain a key
-                "propagation_indices" to use for uncertainty propagation.
-            deterministic (bool): if ``True``, the model returns a deterministic
-                "sample" (e.g., the mean prediction). Defaults to ``False``.
-            rng (`torch.Generator`, optional): an optional random number generator
-                to use.
-
-        Returns:
-            (tuple): (predicted observation  plus reward, concatinated on axis1,
-                model state dictionary,
-                chosen_means is [model_input.shape[0], observationsize+1] Tensor of means chosen by model_indices
-                chosen_stds is [model_input.shape[0], observationsize+1] Tensor of stds chosen by model_indices
-                means_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
-                the mean of every(ensemble_size many) MLP for each observation action pair
-                stds_of_all_ensembles  is [ensemble_size,model_input.shape[0], observationsize+1] Tensor with
-                the stds of every(ensemble_size many) MLP for each observation action pair
-                model_indices is a Tensor[model_input.shape[0]] with random indices [0-ensemble_size) which
-                tells which model was chosen for which observation
-        """
-      
-
+        rng: Optional[torch.Generator] = None,): 
+        
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
         vars_of_all_ensembles = logvars_of_all_ensembles.exp()
         stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
+
+        def compute_one_to_many_disagreement(means, stds): 
+            ensemble_size = means.shape[0]
+            result = torch.zeros(ensemble_size, means.shape[1], device='cuda')
+            for i in range(ensemble_size): 
+                for j in range(ensemble_size): 
+                    if i == j:
+                        continue
+                    result[i] += dm.calc_uncertainty_score_genShen(means[i], stds[i], means[j], stds[j])
+                
+                result[i] /= ensemble_size - 1
+
+
+            # swap the dimensions
+            result = result.permute(1, 0)
+            result = 1 / result # take the reciprocal
+            result = result.softmax(dim=1)
+            print(result.shape)
+            return result
         
-        rollout_length = means_of_all_ensembles.shape[1] 
-        observations_size = means_of_all_ensembles.shape[2]
+        weights = compute_one_to_many_disagreement(means_of_all_ensembles, stds_of_all_ensembles)
+
+
         
-        distances = dm.calc_pairwise_symmetric_uncertainty_for_each_model(means_of_all_ensembles,
-                                                                            vars_of_all_ensembles,
-                                                                            means_of_all_ensembles.shape[0],
-                                                                            dm.calc_uncertainty_score_genShen)
-        print(f"Importance sampling: distances have shape {distances.shape}")
-        print(f"Importance sampling: distances are {distances}")
+
+        model_indices = torch.multinomial(weights, num_samples=1, replacement=False).squeeze()
 
         #choose random model
-        model_indices = torch.randint(self.ensemble_size, (model_input.shape[0],))
+        #model_indices = torch.randint(self.ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
         chosen_means = means_of_all_ensembles[model_indices,list_to_iterate,:]
 
-        vars_of_all_ensembles = logvars_of_all_ensembles.exp()
-        stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
-
+        
         chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                 chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices)
+    
 
 
-        # model_indices = torch.randint(ensemble_size, (model_input.shape[0],))
-        # list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
-            
-        # chosen_means = subset_means[model_indices,list_to_iterate,:]
-        # chosen_stds = subset_stds[model_indices,list_to_iterate,:]
-            
-        # return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
-        #             means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)       
+        
+    
 
 
     def sample_1d_plus_gaussians(
@@ -601,6 +576,9 @@ class GaussianMLP(Ensemble):
                 tells which model was chosen for which observation
         """
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
+        vars_of_all_ensembles = logvars_of_all_ensembles.exp()
+        stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
+
 
 
         #choose random model
@@ -608,9 +586,11 @@ class GaussianMLP(Ensemble):
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
         chosen_means = means_of_all_ensembles[model_indices,list_to_iterate,:]
 
-        vars_of_all_ensembles = logvars_of_all_ensembles.exp()
-        stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
-
+        
         chosen_stds = stds_of_all_ensembles[model_indices,list_to_iterate,:]
         return (torch.normal(chosen_means, chosen_stds, generator=rng), model_state,
                 chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices)
+
+
+
+        
