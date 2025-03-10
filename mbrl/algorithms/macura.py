@@ -184,9 +184,9 @@ def rollout_model_and_populate_sac_buffer(
             return_as_np=True,
         )
 
-    #print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
-    #print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
-    # print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
+    print(f"Average Rollout Length: {np.mean(rollout_tracker)}")
+    print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
+    print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     
     return new_sac_size, border_for_this_rollout
 
@@ -434,7 +434,7 @@ def train(
 
                 # Start Model Training
                 mbrl.util.common.train_model_and_save_model_and_data(
-                    dynamics_model, model_trainer, cfg.overrides, replay_buffer_real_env, work_dir=work_dir,
+                    dynamics_model, model_trainer, cfg.overrides, replay_buffer_real_env, sac_buffer=sac_buffer, work_dir=work_dir,
                 )
 
                 # --------- Rollout new model and store imagined trajectories --------

@@ -656,14 +656,14 @@ class ReplayBuffer:
     def __len__(self):
         return self.num_stored
 
-    def save(self, save_dir: Union[pathlib.Path, str]):
+    def save(self, save_dir: Union[pathlib.Path, str], file_name='replay_buffer.npz'):
         """Saves the data in the replay buffer to a given directory.
 
         Args:
             save_dir (str): the directory to save the data to. File name will be
                 replay_buffer.npz.
         """
-        path = pathlib.Path(save_dir) / "replay_buffer.npz"
+        path = pathlib.Path(save_dir) / file_name
         np.savez(
             path,
             obs=self.obs[: self.num_stored],
@@ -870,14 +870,14 @@ class ReplayBufferDynamicLifeTime:
     def __len__(self):
         return self.num_stored
 
-    def save(self, save_dir: Union[pathlib.Path, str]):
+    def save(self, save_dir: Union[pathlib.Path, str], file_name='replay_buffer.npz'):
         """Saves the data in the replay buffer to a given directory.
 
         Args:
             save_dir (str): the directory to save the data to. File name will be
                 replay_buffer.npz.
         """
-        path = pathlib.Path(save_dir) / "replay_buffer.npz"
+        path = pathlib.Path(save_dir) / file_name
         if self.cur_idx_end-self.cur_idx_start > 0:
             np.savez(
                 path,
