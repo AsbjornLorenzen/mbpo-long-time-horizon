@@ -501,7 +501,7 @@ def train(
                     logger.dump(updates_made, save=True)
 
             # Evaluate every 200 steps
-            EVAL_FREQUENCY = 200
+            EVAL_FREQUENCY = 500
             if env_steps % EVAL_FREQUENCY == 0:
                 print(f"Running evaluation - env-steps:{env_steps}")
                 avg_reward = mbrl.util.common.evaluate(
