@@ -80,13 +80,12 @@ def double_inverted_pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch
         # Compute height of the second pole's top using trigonometric sum identity
         y2 = y1 + L2 * (cos_theta1 * cos_theta2 - sin_theta1 * sin_theta2)
     
-        return y2
+        return y2 + .196 # add back the height of the cart
 
     
     # assumed from the docs.
     L1 = 0.5
     L2 = 0.5
-
     sin_theta1 = next_obs[:, 1]
     cos_theta1 = next_obs[:, 3]
 
@@ -94,9 +93,10 @@ def double_inverted_pendulum(act: torch.Tensor, next_obs: torch.Tensor) -> torch
     cos_theta2 = next_obs[:, 4]
 
 
+
     y_values = compute_second_pole_height(L1, L2, sin_theta1, cos_theta1, sin_theta2, cos_theta2)
 
-    not_done = torch.isfinite(next_obs).all(-1)  * (y_values > 1)
+    not_done = torch.isfinite(next_obs).all(-1) * torch.tensor(y_values > 1)
     done = ~not_done
 
     done = done[:, None]
@@ -112,6 +112,10 @@ def no_termination(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
 
 
 
+def reacher(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    assert len(next_obs.shape) == 2
+
+    pass
 
 
 
