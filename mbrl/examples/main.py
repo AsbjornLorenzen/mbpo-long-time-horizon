@@ -9,6 +9,7 @@ import mbrl.algorithms.macura_new as macura_new
 import mbrl.algorithms.m2ac as m2ac
 import mbrl.algorithms.macura_modified_env as macura_modified_env
 import mbrl.algorithms.macura_top_k as macura_top_k
+import mbrl.algorithms.macura_importance_sampling as macura_importance_sampling
 
 import os
 
@@ -16,7 +17,7 @@ import os
 Use this to decide what GPU to run on!
 """
 os.environ['CUDA_DEVICE_ORDER']="PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES']="0"
+os.environ['CUDA_VISIBLE_DEVICES']="3"
 
 
 
@@ -54,6 +55,12 @@ def run(cfg: omegaconf.DictConfig):
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         return macura_top_k.train(env, test_env,test_env2 ,term_fn, cfg)
+
+    if cfg.algorithm.name == "macura_importance_sampling":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return macura_importance_sampling.train(env, test_env,test_env2 ,term_fn, cfg)
+
     
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
