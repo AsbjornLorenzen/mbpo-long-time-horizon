@@ -486,7 +486,7 @@ class GaussianMLP(Ensemble):
                     means_of_all_ensembles, stds_of_all_ensembles,  subset_means, subset_stds, model_indices)
     
 
-    def sample_1d_plus_gaussians_importance_sampling(self,
+    def sample_1d_plus_gaussians(self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
@@ -503,16 +503,15 @@ class GaussianMLP(Ensemble):
                 for j in range(ensemble_size): 
                     if i == j:
                         continue
-                    result[i] += dm.calc_uncertainty_score_genShen(means[i], stds[i], means[j], stds[j])
+                    result[i] += dm.calc_uncertainty_score_hellinger(means[i], stds[i], means[j], stds[j])
                 
-                result[i] /= ensemble_size - 1
+                result[i] /= (ensemble_size - 1)
 
 
             # swap the dimensions
             result = result.permute(1, 0)
-            result = 1 / result # take the reciprocal
+            # result = -result.log()
             result = result.softmax(dim=1)
-            print(result.shape)
             return result
         
         weights = compute_one_to_many_disagreement(means_of_all_ensembles, stds_of_all_ensembles)
@@ -521,7 +520,7 @@ class GaussianMLP(Ensemble):
         
 
         model_indices = torch.multinomial(weights, num_samples=1, replacement=False).squeeze()
-
+        
         #choose random model
         #model_indices = torch.randint(self.ensemble_size, (model_input.shape[0],))
         list_to_iterate = torch.Tensor(range(0,model_input.shape[0])).long()
@@ -538,7 +537,7 @@ class GaussianMLP(Ensemble):
     
 
 
-    def sample_1d_plus_gaussians(
+    def sample_1d_plus_gaussians_(
         self,
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
