@@ -10,7 +10,8 @@ import mbrl.algorithms.m2ac as m2ac
 import mbrl.algorithms.macura_modified_env as macura_modified_env
 import mbrl.algorithms.macura_top_k as macura_top_k
 import mbrl.algorithms.macura_importance_sampling as macura_importance_sampling
-
+import mbrl.algorithms.macura_data_filter as macura_data_filter
+import mbrl.algorithms.macura_wildcard as macura_wildcard
 import os
 
 """
@@ -61,7 +62,17 @@ def run(cfg: omegaconf.DictConfig):
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         return macura_importance_sampling.train(env, test_env,test_env2 ,term_fn, cfg)
 
+    if cfg.algorithm.name == "macura_data_filter":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return macura_data_filter.train(env, test_env,test_env2 ,term_fn, cfg)        
     
+
+    if cfg.algorithm.name == "macura_wildcard":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return macura_wildcard.train(env, test_env,test_env2 ,term_fn, cfg)
+
     if cfg.algorithm.name == "macura_modified_env":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
