@@ -136,6 +136,7 @@ def rollout_model_and_populate_sac_buffer(
         cum_uncertainty_scores = cum_uncertainty_scores + uncertainty_score
 
 
+
         rolling_cum_uncertainty_scores = cum_uncertainty_scores / (i+1)
 
         # -------------------------------------------------------------------#
@@ -149,6 +150,7 @@ def rollout_model_and_populate_sac_buffer(
             border_for_this_rollout = zeta_percentile * xi
             threshold = 1 / (current_border_count + 1) * border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * current_border_estimate
+            
             print(f"Max Uncertainty of {zeta} percentile times {xi} factor: {border_for_this_rollout}")
             print(f"Updated Uncertainty threshhold is {threshold}")
             print(f"GJS distance (rollouts included if smaller than the above threshold) {uncertainty_score}")
@@ -158,8 +160,11 @@ def rollout_model_and_populate_sac_buffer(
             reduce_time = False
 
 
-
+        # either stop because youre cumalitve score is too high or it spikes.
         indices_of_certain_transitions = rolling_cum_uncertainty_scores < threshold
+        indices_of_certain_transitions_ = uncertainty_score < threshold
+        indices_of_certain_transitions  = np.logical_and(indices_of_certain_transitions, indices_of_certain_transitions_)
+
 
         # certain_bool_map contains true for storing transition if it is certain enough and false else
         if i ==0:
