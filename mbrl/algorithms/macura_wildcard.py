@@ -46,7 +46,7 @@ def rollout_model_and_populate_sac_buffer(
         pink_noise_exploration_mod: bool=False,
         xi:float = 1.0,
         zeta: int = 95,
-
+        state_values: list = None,
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
     SAC-buffer, from which the agent can learn cheaply how to behave optimal in the approximated environment
@@ -65,7 +65,7 @@ def rollout_model_and_populate_sac_buffer(
         batch_size (int): Size of batch of initial states to start rollouts and
         thus there will be batch_size*rollout_horizon more transitions stored in the sac_buffer
     """
-    batch = replay_buffer.sample(batch_size)
+    batch, time_steps = replay_buffer.sample(batch_size, include_time_steps=True)
     # intial_obs ndarray batchsize x observation_size
     initial_obs, *_ = cast(mbrl.types.TransitionBatch, batch).astuple()
     # model_state tensor batchsize x observation_size
@@ -205,6 +205,8 @@ def rollout_model_and_populate_sac_buffer(
             pred_truncated[certain_bool_map_over_all_rollouts], #Let it be false all the time because model predictions do no get truncated
             reduce_time=reduce_time #is true for i==0 and serves the purpose to reduce the lifetime of the stored items in replay buffer
         )
+        
+        
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
         certain_bool_map_over_all_rollouts = np.logical_and(~(pred_terminateds.squeeze()),
                                                             certain_bool_map_over_all_rollouts)
@@ -345,7 +347,11 @@ def train(
     use_double_dtype = cfg.algorithm.get("normalize_double_precision", False)
     dtype = np.double if use_double_dtype else np.float32
     
-    # TODO
+    # TODO: MAKING A CHANGE HERE!
+
+    state_values = [[] for _ in range(1000)]
+
+
     replay_buffer_real_env = mbrl.util.common.create_replay_buffer(
         cfg,
         obs_shape,
@@ -354,6 +360,7 @@ def train(
         obs_type=dtype,
         action_type=dtype,
         reward_type=dtype,
+        collect_trajectories=True,
     )
 
     real_experienced_states_full = []
@@ -368,6 +375,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer_real_env,
+        collect_full_trajectories=True,
     )
     
     # ---------------------------------------------------------
@@ -494,7 +502,8 @@ def train(
                     env_steps,
                     pink_noise_exploration_mod,
                     xi,
-                    zeta
+                    zeta,
+                    state_values
                 )
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
                 if current_border_estimate_list_full == False:

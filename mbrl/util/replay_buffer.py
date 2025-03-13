@@ -597,7 +597,7 @@ class ReplayBuffer:
         self.cur_idx = (self.cur_idx + _how_many) % self.capacity
         self.num_stored = min(self.num_stored + _how_many, self.capacity)
 
-    def sample(self, batch_size: int) -> TransitionBatch:
+    def sample(self, batch_size: int, include_time_steps=False) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
 
         Args:
@@ -610,7 +610,7 @@ class ReplayBuffer:
             (obs[i], act[i], next_obs[i], rewards[i], terminateds[i], truncateds[i]).
         """
         indices = self._rng.choice(self.num_stored, size=batch_size)
-        return self._batch_from_indices(indices)
+        return self._batch_from_indices(indices, include_time_steps=include_time_steps)
 
     def sample_also_real_experienced_states(self, batch_size: int, real_experienced_states_full) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
@@ -627,7 +627,7 @@ class ReplayBuffer:
         indices = self._rng.choice(self.num_stored, size=batch_size)
         return self._batch_from_indices(indices), [real_experienced_states_full[i] for i in indices]
 
-    def sample_trajectory(self) -> Optional[TransitionBatch]:
+    def sample_trajectory(self, include_time_steps=False) -> Optional[TransitionBatch]:
         """Samples a full trajectory and returns it as a batch.
 
         Returns:
@@ -641,15 +641,41 @@ class ReplayBuffer:
         indices = np.arange(
             self.trajectory_indices[idx][0], self.trajectory_indices[idx][1]
         )
-        return self._batch_from_indices(indices)
+        return self._batch_from_indices(indices, include_time_steps)
 
-    def _batch_from_indices(self, indices: Sized) -> TransitionBatch:
+    def _batch_from_indices(self, indices: Sized, include_time_steps=False) -> TransitionBatch:
         obs = self.obs[indices]
         next_obs = self.next_obs[indices]
         action = self.action[indices]
         reward = self.reward[indices]
         terminated = self.terminated[indices]
         truncated = self.truncated[indices]
+
+        
+        if include_time_steps:
+            time_steps = []
+            current_trajectory = []
+
+            for idx in indices:
+                found_home = False
+                for i, (start, end) in enumerate(self.trajectory_indices):
+                    if start <= idx < end:
+                        time_steps.append(idx - start)
+                        found_home = True
+                        break
+                
+                if not found_home:
+                    current_trajectory.append(idx)
+
+        
+            smallest = min(current_trajectory)
+            current_trajectory_time_steps = [x - smallest for x in current_trajectory]
+
+            time_steps.extend(current_trajectory_time_steps)
+            return TransitionBatch(
+                obs, action, next_obs, reward, terminated, truncated
+            ), np.array(time_steps)
+        
 
         return TransitionBatch(obs, action, next_obs, reward, terminated, truncated)
 
