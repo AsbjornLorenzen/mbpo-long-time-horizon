@@ -47,6 +47,8 @@ def rollout_model_and_populate_sac_buffer(
         xi:float = 1.0,
         zeta: int = 95,
         state_values =None,
+        cumalative_current_border_estimate: float = 1, 
+
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
     SAC-buffer, from which the agent can learn cheaply how to behave optimal in the approximated environment
@@ -150,11 +152,14 @@ def rollout_model_and_populate_sac_buffer(
             threshold = 1 / (current_border_count + 1) * border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * current_border_estimate
             
-            # potentially max it out. 
-            cumulative_threshold = np.percentile(uncertainty_score, 99.9) * xi
+            
 
-            print(border_for_this_rollout)
-            print(cumulative_threshold)
+            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 99.9) * xi 
+
+            cumulative_threshold = 1 / (current_border_count + 1) * cumalative_border_for_this_rollout + current_border_count / (
+                        current_border_count + 1) * cumalative_current_border_estimate
+
+
             print(f"Max Uncertainty of {zeta} percentile times {xi} factor: {border_for_this_rollout}")
             print(f"Updated Uncertainty threshhold is {threshold}")
             print(f"GJS distance (rollouts included if smaller than the above threshold) {uncertainty_score}")
@@ -232,7 +237,7 @@ def rollout_model_and_populate_sac_buffer(
     print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
     print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     print(f"Median Rollout Length: {np.median(rollout_tracker)}")
-    return new_sac_size, border_for_this_rollout, np.mean(rollout_tracker)
+    return new_sac_size, border_for_this_rollout, np.mean(rollout_tracker), cumalative_border_for_this_rollout
 
 
 def change_capacity_replay_buffer(
@@ -428,13 +433,14 @@ def train(
     current_border_count_position = 0
     current_border_count = 0
     current_border_estimate = 0
+    cumalative_border_estimate = 0
     current_border_estimate_list_full = False
     # Number of maximum border_for_this_rollout_values to average to get the uncertainty threshold
     Max_Count = unc_tresh_run_avg_history
     # Max_Count = int(total_max_steps_in_environment / 5000 * (epoch_length / freq_train_model))
     # here are these values safed
     current_border_estimate_list = np.empty(Max_Count)
-
+    current_cum_border_estimate_list = np.empty(Max_Count)
 
 
     # have a way to track env steps. 
@@ -494,7 +500,7 @@ def train(
                 # --------- Rollout new model and store imagined trajectories --------
                 # generates maximally rollout_length * rollout_batch_size
                 # (=freq_train_model * effective_model_rollouts_per_step) new transitions for SAC buffer
-                new_sac_size, current_border_estimate_update, avg_rollout_length = rollout_model_and_populate_sac_buffer(
+                new_sac_size, current_border_estimate_update, avg_rollout_length, cumalative_border_estimate = rollout_model_and_populate_sac_buffer(
                     rng,
                     model_env,
                     replay_buffer_real_env,
@@ -509,9 +515,13 @@ def train(
                     pink_noise_exploration_mod,
                     xi,
                     zeta,
-                    state_values
+                    state_values,
+                    cumalative_current_border_estimate=cumalative_border_estimate
                 )
+
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
+                current_cum_border_estimate_list[current_border_count_position] = cumalative_border_estimate
+
                 if current_border_estimate_list_full == False:
                     if current_border_count_position == Max_Count - 1:
                         current_border_estimate_list_full = True
@@ -521,8 +531,11 @@ def train(
                 current_border_count_position = (current_border_count_position + 1) % Max_Count
                 if current_border_estimate_list_full:
                     current_border_estimate = np.mean(current_border_estimate_list)
+                    cumalative_border_estimate = np.mean(current_cum_border_estimate_list)
                 else:
                     current_border_estimate = np.mean(current_border_estimate_list[0:current_border_count_position])
+                    cumalative_border_estimate = np.mean(current_cum_border_estimate_list[0: current_border_count_position])
+
             # --------------- Agent Training -----------------
             # here is a formula which controlls learning steps proportionally to the filling of the SAC buffer
             dynamic_updates_per_step = int(
