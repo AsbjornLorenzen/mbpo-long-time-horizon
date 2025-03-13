@@ -699,7 +699,11 @@ class ReplayBuffer:
                 return sequence_indices
             
             time_steps.extend(convert_sequences_to_indices(current_trajectory))
-
+            
+            for step in time_steps:
+                if step > 1000:
+                    print(step)
+                    print("ERROR!")
             
 
             return TransitionBatch(

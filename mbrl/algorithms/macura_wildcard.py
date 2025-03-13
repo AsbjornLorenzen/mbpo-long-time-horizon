@@ -586,11 +586,12 @@ def train(
                     agent.sac_agent.save_checkpoint(
                         ckpt_path=os.path.join(work_dir, "sac.pth")
                     )
+                save_d_mod(work_dir, state_values)
+                create_graphs(work_dir)
                 epoch += 1
             obs = next_obs
     
-    save_d_mod(work_dir, state_values)
-    create_graphs(work_dir)
+   
     return np.float32(best_eval_reward)
 
 
