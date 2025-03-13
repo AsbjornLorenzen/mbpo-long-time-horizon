@@ -870,3 +870,97 @@
 [2025-03-13 18:22:59,833] INFO _appmap.env: appmap enabled: False
 [2025-03-13 18:24:54,436] INFO _appmap.env: appmap enabled: False
 [2025-03-13 18:26:28,150] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:42:35,419] INFO _appmap.configuration: file: [no appmap.yml]
+[2025-03-13 19:42:35,419] INFO _appmap.configuration: config: []
+[2025-03-13 19:42:35,420] INFO _appmap.configuration: env: environ({'LANGUAGE': 'en_GB:en', 'USER': 'mgws3', 'SSH_CLIENT': '10.252.195.29 42384 22', 'XDG_SESSION_TYPE': 'tty', 'SHLVL': '1', 'HOME': '/home/mgws3', 'CONDA_SHLVL': '1', 'SSL_CERT_FILE': '/usr/lib/ssl/cert.pem', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/6447/bus', '_CE_M': '', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com ', 'LOGNAME': 'mgws3', '_': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/node', 'XDG_SESSION_CLASS': 'user', 'XDG_SESSION_ID': '3797', 'VSCODE_CLI_REQUIRE_TOKEN': '0020d8ea-e53f-42b9-ac99-d9b3d32e849e', '_CE_CONDA': '', 'PATH': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/remote-cli:/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/cuda/bin:/snap/bin', 'VSCODE_AGENT_FOLDER': '/home/mgws3/.vscode-server', 'XDG_RUNTIME_DIR': '/run/user/6447', 'SSL_CERT_DIR': '/usr/lib/ssl/certs', 'LANG': 'en_GB.UTF-8', 'CONDA_PYTHON_EXE': '/opt/conda/bin/python', 'SHELL': '/bin/bash', 'PWD': '/home/mgws3', 'CONDA_EXE': '/opt/conda/bin/conda', 'SSH_CONNECTION': '10.252.195.29 42384 128.232.119.192 22', 'VSCODE_CWD': '/home/mgws3', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/out/nls.messages.json","locale":"en","availableLanguages":{}}', 'VSCODE_HANDLES_SIGPIPE': 'true', 'CONDA_PREFIX': '/opt/conda', 'LS_COLORS': '', 'CONDA_PROMPT_MODIFIER': '(base) ', 'CUDA_VISIBLE_DEVICES': 'GPU-e6719565-ab29-b434-c473-1a79c5139365', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'CONDA_DEFAULT_ENV': 'base', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'BROWSER': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/helpers/browser.sh', 'ELECTRON_RUN_AS_NODE': '1', 'VSCODE_IPC_HOOK_CLI': '/run/user/6447/vscode-ipc-a681e1f8-43d2-41b9-b22c-3a82b0315b52.sock', 'ELECTRON_NO_ASAR': '1'})
+[2025-03-13 19:42:35,431] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:42:35,937] INFO _appmap.configuration: file: [no appmap.yml]
+[2025-03-13 19:42:35,937] INFO _appmap.configuration: config: []
+[2025-03-13 19:42:35,937] INFO _appmap.configuration: file: [no appmap.yml]
+[2025-03-13 19:42:35,938] INFO _appmap.configuration: env: environ({'ELECTRON_NO_ASAR': '1', 'VSCODE_IPC_HOOK_CLI': '/run/user/6447/vscode-ipc-a681e1f8-43d2-41b9-b22c-3a82b0315b52.sock', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'CONDA_DEFAULT_ENV': 'base', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LS_COLORS': '', 'VSCODE_HANDLES_SIGPIPE': 'true', 'SSL_CERT_DIR': '/usr/lib/ssl/certs', 'XDG_SESSION_ID': '3797', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com ', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/6447/bus', 'ELECTRON_RUN_AS_NODE': '1', 'VSCODE_CLI_REQUIRE_TOKEN': '0020d8ea-e53f-42b9-ac99-d9b3d32e849e', 'CUDA_VISIBLE_DEVICES': 'GPU-e6719565-ab29-b434-c473-1a79c5139365', 'SSL_CERT_FILE': '/usr/lib/ssl/cert.pem', 'CONDA_EXE': '/opt/conda/bin/conda', '_': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/node', 'CONDA_SHLVL': '1', 'HOME': '/home/mgws3', 'CONDA_PROMPT_MODIFIER': '(base) ', 'SHLVL': '1', 'BROWSER': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/helpers/browser.sh', 'USER': 'mgws3', 'XDG_SESSION_TYPE': 'tty', 'CONDA_PYTHON_EXE': '/opt/conda/bin/python', 'SSH_CLIENT': '10.252.195.29 42384 22', 'CONDA_PREFIX': '/opt/conda', 'PATH': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/remote-cli:/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/cuda/bin:/snap/bin', 'LOGNAME': 'mgws3', 'LANGUAGE': 'en_GB:en', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'XDG_SESSION_CLASS': 'user', '_CE_CONDA': '', 'PWD': '/home/mgws3', 'LANG': 'en_GB.UTF-8', '_CE_M': '', 'SSH_CONNECTION': '10.252.195.29 42384 128.232.119.192 22', 'XDG_RUNTIME_DIR': '/run/user/6447', 'VSCODE_AGENT_FOLDER': '/home/mgws3/.vscode-server', 'SHELL': '/bin/bash', 'VSCODE_CWD': '/home/mgws3', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/out/nls.messages.json","locale":"en","availableLanguages":{}}'})
+[2025-03-13 19:42:35,939] INFO _appmap.configuration: config: []
+[2025-03-13 19:42:35,940] INFO _appmap.configuration: env: environ({'ELECTRON_NO_ASAR': '1', 'VSCODE_IPC_HOOK_CLI': '/run/user/6447/vscode-ipc-a681e1f8-43d2-41b9-b22c-3a82b0315b52.sock', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'CONDA_DEFAULT_ENV': 'base', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LS_COLORS': '', 'VSCODE_HANDLES_SIGPIPE': 'true', 'SSL_CERT_DIR': '/usr/lib/ssl/certs', 'XDG_SESSION_ID': '3797', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com ', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/6447/bus', 'ELECTRON_RUN_AS_NODE': '1', 'VSCODE_CLI_REQUIRE_TOKEN': '0020d8ea-e53f-42b9-ac99-d9b3d32e849e', 'CUDA_VISIBLE_DEVICES': 'GPU-e6719565-ab29-b434-c473-1a79c5139365', 'SSL_CERT_FILE': '/usr/lib/ssl/cert.pem', 'CONDA_EXE': '/opt/conda/bin/conda', '_': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/node', 'CONDA_SHLVL': '1', 'HOME': '/home/mgws3', 'CONDA_PROMPT_MODIFIER': '(base) ', 'SHLVL': '1', 'BROWSER': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/helpers/browser.sh', 'USER': 'mgws3', 'XDG_SESSION_TYPE': 'tty', 'CONDA_PYTHON_EXE': '/opt/conda/bin/python', 'SSH_CLIENT': '10.252.195.29 42384 22', 'CONDA_PREFIX': '/opt/conda', 'PATH': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/remote-cli:/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/cuda/bin:/snap/bin', 'LOGNAME': 'mgws3', 'LANGUAGE': 'en_GB:en', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'XDG_SESSION_CLASS': 'user', '_CE_CONDA': '', 'PWD': '/home/mgws3', 'LANG': 'en_GB.UTF-8', '_CE_M': '', 'SSH_CONNECTION': '10.252.195.29 42384 128.232.119.192 22', 'XDG_RUNTIME_DIR': '/run/user/6447', 'VSCODE_AGENT_FOLDER': '/home/mgws3/.vscode-server', 'SHELL': '/bin/bash', 'VSCODE_CWD': '/home/mgws3', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/out/nls.messages.json","locale":"en","availableLanguages":{}}'})
+[2025-03-13 19:42:35,956] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:42:35,960] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:47:47,572] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:48:33,136] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:49:08,590] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:51:44,710] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:56:22,240] INFO _appmap.env: appmap enabled: False
+[2025-03-13 19:58:01,560] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:00:08,645] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:01:57,935] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:06:56,116] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:11:26,782] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:13:43,936] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:15:22,578] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:16:48,605] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:18:23,687] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:19:34,011] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:21:38,066] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:23:18,826] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:25:13,384] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:34:12,800] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:35:47,152] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:36:05,155] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:37:49,490] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:39:05,757] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:39:44,741] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:39:50,984] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:40:59,065] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:54:30,464] INFO _appmap.env: appmap enabled: False
+[2025-03-13 20:59:22,458] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:03:41,233] INFO _appmap.configuration: file: [no appmap.yml]
+[2025-03-13 21:03:41,233] INFO _appmap.configuration: config: []
+[2025-03-13 21:03:41,234] INFO _appmap.configuration: env: environ({'LANGUAGE': 'en_GB:en', 'USER': 'mgws3', 'SSH_CLIENT': '10.252.195.29 42384 22', 'XDG_SESSION_TYPE': 'tty', 'SHLVL': '1', 'HOME': '/home/mgws3', 'CONDA_SHLVL': '1', 'SSL_CERT_FILE': '/usr/lib/ssl/cert.pem', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/6447/bus', '_CE_M': '', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com ', 'LOGNAME': 'mgws3', '_': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/node', 'XDG_SESSION_CLASS': 'user', 'XDG_SESSION_ID': '3797', 'VSCODE_CLI_REQUIRE_TOKEN': '0020d8ea-e53f-42b9-ac99-d9b3d32e849e', '_CE_CONDA': '', 'PATH': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/remote-cli:/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/cuda/bin:/snap/bin', 'VSCODE_AGENT_FOLDER': '/home/mgws3/.vscode-server', 'XDG_RUNTIME_DIR': '/run/user/6447', 'SSL_CERT_DIR': '/usr/lib/ssl/certs', 'LANG': 'en_GB.UTF-8', 'CONDA_PYTHON_EXE': '/opt/conda/bin/python', 'SHELL': '/bin/bash', 'PWD': '/home/mgws3', 'CONDA_EXE': '/opt/conda/bin/conda', 'SSH_CONNECTION': '10.252.195.29 42384 128.232.119.192 22', 'VSCODE_CWD': '/home/mgws3', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/out/nls.messages.json","locale":"en","availableLanguages":{}}', 'VSCODE_HANDLES_SIGPIPE': 'true', 'CONDA_PREFIX': '/opt/conda', 'LS_COLORS': '', 'CONDA_PROMPT_MODIFIER': '(base) ', 'CUDA_VISIBLE_DEVICES': 'GPU-e6719565-ab29-b434-c473-1a79c5139365', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'CONDA_DEFAULT_ENV': 'base', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'BROWSER': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/helpers/browser.sh', 'ELECTRON_RUN_AS_NODE': '1', 'VSCODE_IPC_HOOK_CLI': '/run/user/6447/vscode-ipc-a681e1f8-43d2-41b9-b22c-3a82b0315b52.sock', 'ELECTRON_NO_ASAR': '1'})
+[2025-03-13 21:03:41,244] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:03:41,266] INFO _appmap.configuration: file: [no appmap.yml]
+[2025-03-13 21:03:41,266] INFO _appmap.configuration: config: []
+[2025-03-13 21:03:41,266] INFO _appmap.configuration: env: environ({'ELECTRON_NO_ASAR': '1', 'VSCODE_IPC_HOOK_CLI': '/run/user/6447/vscode-ipc-a681e1f8-43d2-41b9-b22c-3a82b0315b52.sock', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'CONDA_DEFAULT_ENV': 'base', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LS_COLORS': '', 'VSCODE_HANDLES_SIGPIPE': 'true', 'SSL_CERT_DIR': '/usr/lib/ssl/certs', 'XDG_SESSION_ID': '3797', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com ', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/6447/bus', 'ELECTRON_RUN_AS_NODE': '1', 'VSCODE_CLI_REQUIRE_TOKEN': '0020d8ea-e53f-42b9-ac99-d9b3d32e849e', 'CUDA_VISIBLE_DEVICES': 'GPU-e6719565-ab29-b434-c473-1a79c5139365', 'SSL_CERT_FILE': '/usr/lib/ssl/cert.pem', 'CONDA_EXE': '/opt/conda/bin/conda', '_': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/node', 'CONDA_SHLVL': '1', 'HOME': '/home/mgws3', 'CONDA_PROMPT_MODIFIER': '(base) ', 'SHLVL': '1', 'BROWSER': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/helpers/browser.sh', 'USER': 'mgws3', 'XDG_SESSION_TYPE': 'tty', 'CONDA_PYTHON_EXE': '/opt/conda/bin/python', 'SSH_CLIENT': '10.252.195.29 42384 22', 'CONDA_PREFIX': '/opt/conda', 'PATH': '/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/bin/remote-cli:/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/cuda/bin:/snap/bin', 'LOGNAME': 'mgws3', 'LANGUAGE': 'en_GB:en', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'XDG_SESSION_CLASS': 'user', '_CE_CONDA': '', 'PWD': '/home/mgws3', 'LANG': 'en_GB.UTF-8', '_CE_M': '', 'SSH_CONNECTION': '10.252.195.29 42384 128.232.119.192 22', 'XDG_RUNTIME_DIR': '/run/user/6447', 'VSCODE_AGENT_FOLDER': '/home/mgws3/.vscode-server', 'SHELL': '/bin/bash', 'VSCODE_CWD': '/home/mgws3', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/mgws3/.vscode-server/cli/servers/Stable-6609ac3d66f4eade5cf376d1cb76f13985724bcb/server/out/nls.messages.json","locale":"en","availableLanguages":{}}'})
+[2025-03-13 21:03:41,278] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:05:35,512] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:05:45,782] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:08:07,660] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:08:24,327] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:08:44,175] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:09:38,820] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:11:21,744] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:12:17,856] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:17:03,863] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:17:53,639] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:19:51,027] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:21:02,303] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:22:24,804] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:27:17,892] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:29:25,233] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:30:46,461] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:33:12,524] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:36:18,016] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:36:26,676] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:36:36,482] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:38:48,747] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:39:08,085] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:39:29,957] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:39:45,002] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:40:01,080] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:44:20,099] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:44:41,104] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:44:45,225] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:45:34,103] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:46:11,285] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:52:55,805] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:53:58,476] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:57:34,368] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:58:02,943] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:58:21,229] INFO _appmap.env: appmap enabled: False
+[2025-03-13 21:58:48,155] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:02:28,182] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:03:02,095] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:03:35,373] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:04:04,044] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:04:31,911] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:04:36,961] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:05:10,508] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:06:33,059] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:06:54,196] INFO _appmap.env: appmap enabled: False
+[2025-03-13 22:08:28,105] INFO _appmap.env: appmap enabled: False

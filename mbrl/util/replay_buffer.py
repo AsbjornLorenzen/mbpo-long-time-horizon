@@ -651,6 +651,7 @@ class ReplayBuffer:
         terminated = self.terminated[indices]
         truncated = self.truncated[indices]
 
+
         
         if include_time_steps:
             time_steps = []
@@ -661,17 +662,46 @@ class ReplayBuffer:
                 for i, (start, end) in enumerate(self.trajectory_indices):
                     if start <= idx < end:
                         time_steps.append(idx - start)
+                        
                         found_home = True
                         break
                 
                 if not found_home:
                     current_trajectory.append(idx)
 
-        
-            smallest = min(current_trajectory)
-            current_trajectory_time_steps = [x - smallest for x in current_trajectory]
 
-            time_steps.extend(current_trajectory_time_steps)
+            
+          
+            def convert_sequences_to_indices(data):
+                unique_values = sorted(set(data))  # Sort unique values
+                sequences = []  # To store detected sequences
+
+                # Step 1: Group unique numbers into sequences
+                current_sequence = []
+                for i, num in enumerate(unique_values):
+                    if not current_sequence or num == current_sequence[-1] + 1:
+                        current_sequence.append(num)
+                    else:
+                        sequences.append(current_sequence)
+                        current_sequence = [num]
+                if current_sequence:
+                    sequences.append(current_sequence)
+
+                # Step 2: Create mapping for each sequence
+                index_mapping = {}
+                for sequence in sequences:
+                    for idx, num in enumerate(sequence):
+                        index_mapping[num] = idx  # Assign sequential indices
+
+                # Step 3: Replace original data with mapped indices (preserving order)
+                sequence_indices = [index_mapping[num] for num in data]
+
+                return sequence_indices
+            
+            time_steps.extend(convert_sequences_to_indices(current_trajectory))
+
+            
+
             return TransitionBatch(
                 obs, action, next_obs, reward, terminated, truncated
             ), np.array(time_steps)

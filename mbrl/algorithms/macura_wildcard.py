@@ -22,7 +22,7 @@ from mbrl.third_party.pytorch_sac import VideoRecorder
 from omegaconf import OmegaConf
 import mbrl.util.distance_measures as dm
 import colorednoise as cn
-from mbrl.algorithms.utils.plots import create_graphs
+from mbrl.algorithms.utils.plots import create_graphs, save_d_mod
 
 MBPO_LOG_FORMAT = [
     ("env_step", "S", "int"),
@@ -207,11 +207,14 @@ def rollout_model_and_populate_sac_buffer(
         )
 
         if i !=0:
-            # TODO: add here!
-            print(time_steps)
-            print(obs[certain_bool_map_this_rollout].shape)
-            state_values[time_steps]
+            certain_obs = pred_next_obs[indices_of_certain_transitions]
+            certain_timesteps = time_steps[indices_of_certain_transitions]
             
+
+            for i, t in enumerate(certain_timesteps):
+                state_values[t].append(certain_obs[i, 0])
+            
+
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
         certain_bool_map_over_all_rollouts = np.logical_and(~(pred_terminateds.squeeze()),
                                                             certain_bool_map_over_all_rollouts)
@@ -353,11 +356,7 @@ def train(
     use_double_dtype = cfg.algorithm.get("normalize_double_precision", False)
     dtype = np.double if use_double_dtype else np.float32
     
-    # TODO: MAKING A CHANGE HERE!
-
-    state_values = [[] for _ in range(1000)]
-
-    state_values = np.array(state_values)
+    state_values = [ [] for _ in range(1000)]
 
     replay_buffer_real_env = mbrl.util.common.create_replay_buffer(
         cfg,
@@ -577,7 +576,7 @@ def train(
                 epoch += 1
             obs = next_obs
     
-    
+    save_d_mod(work_dir, state_values)
     create_graphs(work_dir)
     return np.float32(best_eval_reward)
 
