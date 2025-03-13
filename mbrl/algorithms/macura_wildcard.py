@@ -22,6 +22,7 @@ from mbrl.third_party.pytorch_sac import VideoRecorder
 from omegaconf import OmegaConf
 import mbrl.util.distance_measures as dm
 import colorednoise as cn
+from mbrl.algorithms.utils.plots import create_graphs
 
 MBPO_LOG_FORMAT = [
     ("env_step", "S", "int"),
@@ -220,7 +221,7 @@ def rollout_model_and_populate_sac_buffer(
     print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
     print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     print(f"Median Rollout Length: {np.median(rollout_tracker)}")
-    return new_sac_size, border_for_this_rollout
+    return new_sac_size, border_for_this_rollout, np.mean(rollout_tracker)
 
 
 def change_capacity_replay_buffer(
@@ -343,6 +344,8 @@ def train(
     # -------------- Create Replay buffer storing transitions of agent in real environment --------------
     use_double_dtype = cfg.algorithm.get("normalize_double_precision", False)
     dtype = np.double if use_double_dtype else np.float32
+    
+    # TODO
     replay_buffer_real_env = mbrl.util.common.create_replay_buffer(
         cfg,
         obs_shape,
@@ -417,6 +420,11 @@ def train(
     # Max_Count = int(total_max_steps_in_environment / 5000 * (epoch_length / freq_train_model))
     # here are these values safed
     current_border_estimate_list = np.empty(Max_Count)
+
+
+
+    # have a way to track env steps. 
+    
     while env_steps < total_max_steps_in_environment:
         # ---------------------------------------------------------------------------------
         # --------------------- Initialization for new epoch ---------------------
@@ -472,7 +480,7 @@ def train(
                 # --------- Rollout new model and store imagined trajectories --------
                 # generates maximally rollout_length * rollout_batch_size
                 # (=freq_train_model * effective_model_rollouts_per_step) new transitions for SAC buffer
-                new_sac_size, current_border_estimate_update = rollout_model_and_populate_sac_buffer(
+                new_sac_size, current_border_estimate_update, avg_rollout_length = rollout_model_and_populate_sac_buffer(
                     rng,
                     model_env,
                     replay_buffer_real_env,
@@ -539,7 +547,7 @@ def train(
                         "epoch": epoch,
                         "env_step": env_steps - 1,
                         "episode_reward": avg_reward,
-                        "rollout_length": max_rollout_length,
+                        "rollout_length": avg_rollout_length,
                     },
                 )
             if env_steps % epoch_length == 0:
@@ -560,5 +568,3 @@ def train(
 
 
 
-def create_graphs(): 
-    print("creating graph")
