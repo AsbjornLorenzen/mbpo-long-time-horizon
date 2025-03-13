@@ -46,7 +46,7 @@ def rollout_model_and_populate_sac_buffer(
         pink_noise_exploration_mod: bool=False,
         xi:float = 1.0,
         zeta: int = 95,
-        state_values: list = None,
+        state_values =None,
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
     SAC-buffer, from which the agent can learn cheaply how to behave optimal in the approximated environment
@@ -205,14 +205,20 @@ def rollout_model_and_populate_sac_buffer(
             pred_truncated[certain_bool_map_over_all_rollouts], #Let it be false all the time because model predictions do no get truncated
             reduce_time=reduce_time #is true for i==0 and serves the purpose to reduce the lifetime of the stored items in replay buffer
         )
-        
-        
+
+        if i !=0:
+            # TODO: add here!
+            print(time_steps)
+            print(obs[certain_bool_map_this_rollout].shape)
+            state_values[time_steps]
+            
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
         certain_bool_map_over_all_rollouts = np.logical_and(~(pred_terminateds.squeeze()),
                                                             certain_bool_map_over_all_rollouts)
        
 
         obs = pred_next_obs
+        time_steps = time_steps + 1
         batch_size = obs.shape[0]
         model_state = model_env.reset(
             initial_obs_batch=cast(np.ndarray, obs),
@@ -351,6 +357,7 @@ def train(
 
     state_values = [[] for _ in range(1000)]
 
+    state_values = np.array(state_values)
 
     replay_buffer_real_env = mbrl.util.common.create_replay_buffer(
         cfg,
