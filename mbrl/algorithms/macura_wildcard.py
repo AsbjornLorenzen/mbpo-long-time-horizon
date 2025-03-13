@@ -121,6 +121,7 @@ def rollout_model_and_populate_sac_buffer(
 
 
 
+
         vars_of_all_ensembles = torch.pow(stds_of_all_ensembles, 2)
         # -------------------------------------------------------------------#
 
@@ -131,14 +132,11 @@ def rollout_model_and_populate_sac_buffer(
                                                                                 means_of_all_ensembles.shape[0],
                                                                               dm.calc_uncertainty_score_genShen)
         
-       
         uncertainty_score = jsp
         cum_uncertainty_scores = cum_uncertainty_scores + uncertainty_score
 
 
-
-        rolling_cum_uncertainty_scores = cum_uncertainty_scores / (i+1)
-
+       
         # -------------------------------------------------------------------#
         # Calculate the uncertainty threshhold. If some non zero uncertainty threshold was chosen it is used to filter
         # the generated transitions. For a zero threshold the current_border_estimate is used to filter the data,
@@ -151,17 +149,22 @@ def rollout_model_and_populate_sac_buffer(
             threshold = 1 / (current_border_count + 1) * border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * current_border_estimate
             
+            # potentially max it out. 
+            cumulative_threshold = np.percentile(uncertainty_score, 99.9) * xi
+
+            print(border_for_this_rollout)
+            print(cumulative_threshold)
             print(f"Max Uncertainty of {zeta} percentile times {xi} factor: {border_for_this_rollout}")
             print(f"Updated Uncertainty threshhold is {threshold}")
             print(f"GJS distance (rollouts included if smaller than the above threshold) {uncertainty_score}")
-            print(f"Cumulative uncertainty score {rolling_cum_uncertainty_scores}")
+            print(f"Cumulative uncertainty score {cum_uncertainty_scores}")
             reduce_time = True
         else:
             reduce_time = False
 
 
         # either stop because youre cumalitve score is too high or it spikes.
-        indices_of_certain_transitions = rolling_cum_uncertainty_scores < threshold
+        indices_of_certain_transitions = cum_uncertainty_scores < cumulative_threshold
         indices_of_certain_transitions_ = uncertainty_score < threshold
         indices_of_certain_transitions  = np.logical_and(indices_of_certain_transitions, indices_of_certain_transitions_)
 
@@ -549,4 +552,13 @@ def train(
                     )
                 epoch += 1
             obs = next_obs
+    
+    
+    create_graphs(work_dir)
     return np.float32(best_eval_reward)
+
+
+
+
+def create_graphs(): 
+    print("creating graph")
