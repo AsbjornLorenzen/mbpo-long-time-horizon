@@ -4,6 +4,9 @@
 # LICENSE file in the root directory of this source tree.
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Tuple, Union, cast
+import gymnasium as gym
+import gymnasium_robotics
+gym.register_envs(gymnasium_robotics)
 
 import gymnasium as gym
 import gymnasium.wrappers
