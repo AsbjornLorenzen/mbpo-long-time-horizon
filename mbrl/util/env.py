@@ -18,6 +18,8 @@ import torch
 import mbrl.planning
 import mbrl.types
 
+from mbrl.env.robot_wrapper import RobotWrapper
+
 
 
 def _get_term_and_reward_fn(
@@ -56,6 +58,7 @@ def _legacy_make_env(
     render_mode = "human" if cfg.get("render", False) else None
     if test_env:
         render_mode = None
+    
     if "dmcontrol___" in cfg.overrides.env:
         import mbrl.third_party.dmc2gym as dmc2gym
 
@@ -66,6 +69,10 @@ def _legacy_make_env(
 
     elif "gym___" in cfg.overrides.env:
         env = gym.make(cfg.overrides.env.split("___")[1], render_mode=render_mode)
+        
+        if env.observation_space.shape is None:
+            env = RobotWrapper(env)
+
         term_fn, reward_fn = _get_term_and_reward_fn(cfg)
     else:
         import mbrl.env.mujoco_envs

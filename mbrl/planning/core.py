@@ -92,6 +92,8 @@ def complete_agent_cfg(
     obs_shape = env.observation_space.shape
     act_shape = env.action_space.shape
 
+    print(env.observation_space)
+
     def _check_and_replace(key: str, value: Any, cfg: omegaconf.DictConfig):
         if key in cfg.keys() and key not in cfg:
             setattr(cfg, key, value)
