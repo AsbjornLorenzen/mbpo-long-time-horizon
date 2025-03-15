@@ -145,9 +145,9 @@ class MujocoEnvHandler(EnvHandler):
             
             state = (pos, vel, leg_contact)
         
-        # elif hasattr(env.unwrapped, 'state'):
-        #     # Generic case if the environment has a state attribute
-        #     state = env.unwrapped.state
+        elif hasattr(env.unwrapped, 'state'):
+             # Generic case if the environment has a state attribute
+             state = env.unwrapped.state
         else:
             raise Exception(f'State extraction not supported for environment type: {type(env.unwrapped)}')
         

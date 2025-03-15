@@ -404,9 +404,11 @@ def train(
         # On average only 0.25 of all model rollouts are put into sac buffer
         sac_buffer_capacity *= num_epochs_to_retain_sac_buffer * 0.25
         sac_buffer_capacity = int(sac_buffer_capacity)
+        sac_buffer_capacity = 1_000_000
         sac_buffer = change_capacity_replay_buffer(
             sac_buffer, obs_shape, act_shape, sac_buffer_capacity, cfg.seed
         )
+        
 
         obs, truncated, terminated = None, False, False
         if exploration_type_env == "pink":

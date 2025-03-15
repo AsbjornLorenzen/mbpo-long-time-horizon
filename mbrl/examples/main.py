@@ -18,7 +18,7 @@ import os
 Use this to decide what GPU to run on!
 """
 os.environ['CUDA_DEVICE_ORDER']="PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES']="0"
+os.environ['CUDA_VISIBLE_DEVICES']="3"
 
 
 
@@ -45,6 +45,7 @@ def run(cfg: omegaconf.DictConfig):
     if cfg.algorithm.name == "macura":
         test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
         test_env2, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+       
         return macura.train(env, test_env,test_env2 ,term_fn, cfg)
     
     if cfg.algorithm.name == "macura_new":

@@ -13,6 +13,7 @@ from mbrl.third_party.pytorch_sac import VideoRecorder
 import mbrl.models
 import mbrl.planning
 import mbrl.types
+import statistics
 import torch
 from .replay_buffer import (
     BootstrapIterator,
@@ -117,20 +118,40 @@ def evaluate(
     Returns:
         (float): The average reward of the num_episode episodes
     """
+
     avg_episode_reward = 0
+    reward_tracker = []
+    pass_tracker = []
+
     for episode in range(num_episodes):
         obs, _ = env.reset()
         video_recorder.init(enabled=(episode == 0))
         terminated= truncated = False
         episode_reward = 0
+        passed = False
         while not terminated and not truncated:
             action = agent.act(obs)
             obs, reward, terminated, truncated, _ = env.step(action)
+            
+            if hasattr(env, 'completed_goal') is not None:
+                if env.completed_goal(reward):
+                    passed = True
+
+
             video_recorder.record(env)
             episode_reward += reward
-        avg_episode_reward += episode_reward
-    return avg_episode_reward / num_episodes
+        
+        if passed:
+            pass_tracker.append(1)
+        else:
+            pass_tracker.append(0)
 
+        avg_episode_reward += episode_reward
+        reward_tracker.append(episode_reward)
+    
+    print(f"pass rate: {sum(pass_tracker) / num_episodes}")
+    return avg_episode_reward / num_episodes
+    #return statistics.median(reward_tracker)
 
 def create_one_dim_tr_model(
         cfg: omegaconf.DictConfig,

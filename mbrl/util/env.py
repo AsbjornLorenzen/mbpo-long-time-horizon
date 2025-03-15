@@ -72,7 +72,7 @@ def _legacy_make_env(
         
         if env.observation_space.shape is None:
             env = RobotWrapper(env)
-
+            
         term_fn, reward_fn = _get_term_and_reward_fn(cfg)
     else:
         import mbrl.env.mujoco_envs

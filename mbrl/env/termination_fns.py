@@ -157,3 +157,14 @@ def humanoid(act: torch.Tensor, next_obs: torch.Tensor):
     return done
 
 
+
+# can make a robot reach if I wanted to.
+"""
+
+def robot_reacher(act: torch.Tensor, next_obs:torch.Tensor):
+    assert len(next_obs.shape) == 2
+    # not_done = next_obs[ ]
+    done = ~not_done
+    done = done[:, None]
+    return done
+"""
