@@ -149,10 +149,16 @@ class MujocoEnvHandler(EnvHandler):
              # Generic case if the environment has a state attribute
              state = env.unwrapped.state
         else:
-            raise Exception(f'State extraction not supported for environment type: {type(env.unwrapped)}')
-        
+            
+            # TODO: not all the data in there.
+            unwrapped = env.unwrapped
+            
+            state = unwrapped.data 
+            elapsed_steps = unwrapped.data.time
 
-        elapsed_steps = env._elapsed_steps
+
+        if elapsed_steps is None:
+            elapsed_steps = env._elapsed_steps
         return state, elapsed_steps
 
 
