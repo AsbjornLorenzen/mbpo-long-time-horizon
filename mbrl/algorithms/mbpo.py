@@ -79,7 +79,8 @@ def maybe_replace_sac_buffer(
             rng = np.random.default_rng(seed=seed)
         else:
             rng = sac_buffer.rng
-        new_buffer = mbrl.util.ReplayBuffer(new_capacity, obs_shape, act_shape, rng=rng)
+        
+        new_buffer = mbrl.util.ReplayBuffer(new_capacity, obs_shape, act_shape, rng=rng, max_trajectory_length=50)
         if sac_buffer is None:
             return new_buffer
         obs, action, next_obs, reward, terminated, truncated = sac_buffer.get_all().astuple()
@@ -152,6 +153,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer,
+        collect_full_trajectories=True
     )
 
     # ---------------------------------------------------------

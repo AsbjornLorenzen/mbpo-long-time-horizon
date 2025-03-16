@@ -18,7 +18,7 @@ import os
 Use this to decide what GPU to run on!
 """
 os.environ['CUDA_DEVICE_ORDER']="PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES']="3"
+os.environ['CUDA_VISIBLE_DEVICES']="4"
 
 
 

@@ -442,6 +442,8 @@ class ReplayBuffer:
         self.num_stored = 0
 
         self.trajectory_indices: Optional[List[Tuple[int, int]]] = None
+        max_trajectory_length= 50
+        
         if max_trajectory_length:
             self.trajectory_indices = []
             capacity += max_trajectory_length
@@ -609,6 +611,8 @@ class ReplayBuffer:
             The i-th transition corresponds to
             (obs[i], act[i], next_obs[i], rewards[i], terminateds[i], truncateds[i]).
         """
+
+
         indices = self._rng.choice(self.num_stored, size=batch_size)
         return self._batch_from_indices(indices)
 
@@ -651,7 +655,56 @@ class ReplayBuffer:
         terminated = self.terminated[indices]
         truncated = self.truncated[indices]
 
+        virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated  = self._get_final_virtual_data(indices, obs, next_obs, action, reward, terminated, truncated)
+
+
+        obs = np.concatenate((obs, virtual_obs), axis=0)
+        
+
         return TransitionBatch(obs, action, next_obs, reward, terminated, truncated)
+
+
+    def _get_final_virtual_data(self , indices,  obs, next_obs, action, reward, terminated, truncated) -> TransitionBatch:
+        
+        """
+        for each index, its end position.
+            Once we have the end position, compute its final state.
+            relabel this indexes goal as the final state
+        """
+
+
+        virtual_obs = np.copy(obs)
+        virtual_next_obs = np.copy(next_obs)
+        virtual_action =  np.copy(action)
+        virtual_reward =  np.copy(reward)
+        virtual_terminated =  np.copy(terminated)
+        virtual_truncated = np.copy(truncated)
+
+ 
+        for i in indices:
+            print(i)
+            for t in self.trajectory_indices:
+                low, high = t[0], t[1]
+                if low  < i <= high:
+                    highobs = self.obs[high]
+                    achieved_goal = self._get_achieved_goal(highobs)
+
+                    virtual_obs[i, -3:] = achieved_goal
+                    virtual_next_obs[i, -3:] = achieved_goal
+                    virtual_reward[i] = self._get_reward(virtual_obs[i])
+
+        return virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated    
+
+        
+
+    def _get_achieved_goal(self, observation): 
+        return observation[:3]
+
+
+    def _get_reward(self, observation):
+        current_pos = observation[:3]
+        target = observation[-3:]
+        return -np.linalg.norm(current_pos - target)
 
     def __len__(self):
         return self.num_stored
