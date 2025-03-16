@@ -121,37 +121,30 @@ def evaluate(
 
     avg_episode_reward = 0
     reward_tracker = []
-    pass_tracker = []
+    success_count = 0
 
     for episode in range(num_episodes):
         obs, _ = env.reset()
         video_recorder.init(enabled=(episode == 0))
         terminated= truncated = False
         episode_reward = 0
-        passed = False
         while not terminated and not truncated:
             action = agent.act(obs)
-            obs, reward, terminated, truncated, _ = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
             
-            if hasattr(env, 'completed_goal') is not None:
-                if env.completed_goal(reward):
-                    passed = True
-
+            if info.get("is_success", 0.0) == 1.0:
+                success_count += 1
+                break 
 
             video_recorder.record(env)
             episode_reward += reward
-        
-        if passed:
-            pass_tracker.append(1)
-        else:
-            pass_tracker.append(0)
+
 
         avg_episode_reward += episode_reward
         reward_tracker.append(episode_reward)
     
-    print(f"pass rate: {sum(pass_tracker) / num_episodes}")
+    print(f"pass rate: { success_count / num_episodes}")
     return avg_episode_reward / num_episodes
-    #return statistics.median(reward_tracker)
 
 def create_one_dim_tr_model(
         cfg: omegaconf.DictConfig,
@@ -678,6 +671,7 @@ def rollout_agent_trajectories_Tracking_States(
         while not terminated and not truncated:
             if replay_buffer is not None:
                 real_experienced_states_full.append(mbrl.util.mujoco.MujocoEnvHandler.get_current_state(env))
+                
                 next_obs, reward, terminated, truncated, info = step_env_and_add_to_buffer(
                     env,
                     obs,
@@ -857,6 +851,8 @@ def step_env_and_add_to_buffer(
         agent_obs = getattr(env, "get_last_low_dim_obs")()
     else:
         agent_obs = obs
+    
+   
     action = agent.act(agent_obs, **agent_kwargs)
     #default value for noise is zero
 

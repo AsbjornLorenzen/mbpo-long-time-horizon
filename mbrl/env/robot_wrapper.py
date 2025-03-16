@@ -22,12 +22,7 @@ class RobotWrapper(gym.ObservationWrapper):
     def observation(self, observation):
         achieved_goal, desired_goal, observation_ = observation['achieved_goal'], observation['desired_goal'], observation['observation']
         new_observation = np.concatenate((observation_, desired_goal))
-        new_observation = np.clip(new_observation, -200, 200)
+        # new_observation = np.clip(new_observation, -200, 200)
         return new_observation
 
-
-    # depending on the env 
-    def completed_goal(self, reward): 
-        
-        return reward >= -0.05
 
