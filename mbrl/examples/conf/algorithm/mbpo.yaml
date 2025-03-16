@@ -1,19 +1,16 @@
 name: "mbpo"
 
-normalize: false
-normalize_double_precision: false
-target_is_delta: false
-learned_rewards: false
+normalize: true
+normalize_double_precision: true
+target_is_delta: true
+learned_rewards: true
 freq_train_model: ${overrides.freq_train_model}
 real_data_ratio: ${overrides.real_data_ratio}
 
 sac_samples_action: true
-initial_exploration_steps: 1000
+initial_exploration_steps: 5000
 random_initial_explore: false
-num_eval_episodes: 10
-
-dataset_size: 1000000
-
+num_eval_episodes: 1
 
 #Periodic network reset of SAC agent
 critic_reset: false

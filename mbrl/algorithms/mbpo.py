@@ -136,12 +136,6 @@ def train(
     dynamics_model = mbrl.util.common.create_one_dim_tr_model(cfg, obs_shape, act_shape)
     use_double_dtype = cfg.algorithm.get("normalize_double_precision", False)
     dtype = np.double if use_double_dtype else np.float32
-    sac_buffer_capacity = 1_000_000 
-    sac_buffer = None
-    sac_buffer = maybe_replace_sac_buffer(
-            sac_buffer, obs_shape, act_shape, sac_buffer_capacity, cfg.seed
-        
-        )
     replay_buffer = mbrl.util.common.create_replay_buffer(
         cfg,
         obs_shape,
@@ -157,7 +151,7 @@ def train(
         cfg.algorithm.initial_exploration_steps,
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
-        replay_buffer=sac_buffer,
+        replay_buffer=replay_buffer,
     )
 
     # ---------------------------------------------------------
@@ -186,7 +180,7 @@ def train(
     )
     best_eval_reward = -np.inf
     epoch = 0
-    
+    sac_buffer = None
     while env_steps < cfg.overrides.num_steps:
         rollout_length = int(
             mbrl.util.math.truncated_linear(
@@ -195,7 +189,6 @@ def train(
         )
         sac_buffer_capacity = rollout_length * rollout_batch_size * trains_per_epoch
         sac_buffer_capacity *= cfg.overrides.num_epochs_to_retain_sac_buffer
-        sac_buffer_capacity = 1_000_000 
         sac_buffer = maybe_replace_sac_buffer(
             sac_buffer, obs_shape, act_shape, sac_buffer_capacity, cfg.seed
         )
@@ -203,49 +196,39 @@ def train(
         if exploration_type_env == "pink":
             action_noise = cn.powerlaw_psd_gaussian(1, (env.action_space.shape[0], cfg.overrides.epoch_length), random_state=rng)
 
-        rewards = []
-        current_reward = 0
         for steps_epoch in range(cfg.overrides.epoch_length):
             if steps_epoch == 0 or terminated or truncated:
                 obs, _ = env.reset()
                 terminated = False
                 truncated = False
-                rewards.append(current_reward)
-                current_reward = 0
-
             # --- Doing env step and adding to model dataset ---
             if exploration_type_env == "pink":
                 next_obs, reward, terminated, truncated, _ = mbrl.util.common.step_env_and_add_to_buffer_eps(
-                    env, obs, agent, {}, sac_buffer, eps=action_noise[:, steps_epoch])
-                current_reward += reward
-    
+                    env, obs, agent, {}, replay_buffer, eps=action_noise[:, steps_epoch])
             elif exploration_type_env == "white":
                 next_obs, reward, terminated, truncated , _ = mbrl.util.common.step_env_and_add_to_buffer(
-                    env, obs, agent, {"sample":True}, sac_buffer
+                    env, obs, agent, {"sample":True}, replay_buffer
                 )
-                current_reward += reward
-    
             elif exploration_type_env == "det":
                 next_obs, reward, terminated, truncated, _ = mbrl.util.common.step_env_and_add_to_buffer(
-                    env, obs, agent, {}, sac_buffer
+                    env, obs, agent, {}, replay_buffer
                 )
-                current_reward += reward
             else:
                 print("Pls choose pink, white or det as exploration_type_env!")
                 raise NotImplementedError
             # --------------- Model Training -----------------
             if (env_steps + 1) % cfg.overrides.freq_train_model == 0:
-                """mbrl.util.common.train_model_and_save_model_and_data(
+                mbrl.util.common.train_model_and_save_model_and_data(
                     dynamics_model,
                     model_trainer,
                     cfg.overrides,
                     replay_buffer,
                     work_dir=work_dir,
-                )"""
+                )
 
                 # --------- Rollout new model and store imagined trajectories --------
                 # Batch all rollouts for the next freq_train_model steps together
-                """rollout_model_and_populate_sac_buffer(
+                rollout_model_and_populate_sac_buffer(
                     model_env,
                     replay_buffer,
                     agent,
@@ -254,8 +237,8 @@ def train(
                     rollout_length,
                     rollout_batch_size,
                     env_steps
-                )"""
-
+                )
+                # TODO: HER inserted here.
                 if debug_mode:
                     print(
                         f"Epoch: {epoch}. "
@@ -271,12 +254,12 @@ def train(
 
             for _ in range(cfg.overrides.num_sac_updates_per_step):
                 use_real_data = rng.random() < cfg.algorithm.real_data_ratio
-                which_buffer = sac_buffer # if use_real_data else sac_buffer
-                if len(
+                which_buffer = replay_buffer if use_real_data else sac_buffer
+                if (env_steps + 1) % cfg.overrides.sac_updates_every_steps != 0 or len(
                         which_buffer
                 ) < cfg.overrides.sac_batch_size:
                     break  # only update every once in a while
-                
+
                 agent.sac_agent.update_parameters(
                     which_buffer,
                     cfg.overrides.sac_batch_size,
@@ -302,7 +285,6 @@ def train(
                         "rollout_length": rollout_length,
                     },
                 )
-                print(sum(rewards[-100:]) / min(100, len(rewards)))
 
                 if avg_reward > best_eval_reward:
                     video_recorder.save(f"{epoch}.mp4")

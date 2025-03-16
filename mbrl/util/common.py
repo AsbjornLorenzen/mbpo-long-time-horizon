@@ -23,7 +23,7 @@ from .replay_buffer import (
     TransitionIterator,
 )
 import mbrl.util.math
-
+from statistics import median
 
 def calc_rest_ensemble_mean_std_leave_out_model_indices(means_of_all_ensembles: torch.Tensor,
                                                         stds_of_all_ensembles: torch.Tensor,
@@ -121,29 +121,34 @@ def evaluate(
 
     avg_episode_reward = 0
     reward_tracker = []
-    success_count = 0
+    success_tracker = []
 
     for episode in range(num_episodes):
         obs, _ = env.reset()
         video_recorder.init(enabled=(episode == 0))
         terminated= truncated = False
         episode_reward = 0
+        success = False 
         while not terminated and not truncated:
             action = agent.act(obs)
             obs, reward, terminated, truncated, info = env.step(action)
             
             if info.get("is_success", 0.0) == 1.0:
-                success_count += 1
+                success = True
                 break 
 
             video_recorder.record(env)
             episode_reward += reward
 
+        if success:
+            success_tracker.append(1)
+        else:
+            success_tracker.append(0)
 
         avg_episode_reward += episode_reward
         reward_tracker.append(episode_reward)
     
-    print(f"pass rate: { success_count / num_episodes}")
+    print(f"pass rate: {median(success_tracker)}")
     return avg_episode_reward / num_episodes
 
 def create_one_dim_tr_model(
