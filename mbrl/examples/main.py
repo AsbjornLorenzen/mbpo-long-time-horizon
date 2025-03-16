@@ -17,7 +17,6 @@ import os
 Use this to decide what GPU to run on!
 """
 os.environ['CUDA_DEVICE_ORDER']="PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES']="2"
 
 
 
@@ -30,6 +29,7 @@ def run(cfg: omegaconf.DictConfig):
     # put the environment name
 
     print(f"Using the following algorithm: {cfg.algorithm.name}!")
+    os.environ['CUDA_VISIBLE_DEVICES']=f"{cfg.gpu_idx}"
 
     env, term_fn, reward_fn = mbrl.util.env.EnvHandler.make_env(cfg, test_env=False)
     np.random.seed(cfg.seed)

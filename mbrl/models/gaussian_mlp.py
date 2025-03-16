@@ -18,6 +18,7 @@ from .model import Ensemble
 from .util import EnsembleLinearLayer, truncated_normal_init, EnsembleBiasLayer
 import itertools
 import random
+import math
 random.seed(10)
 
 class GaussianMLP(Ensemble):
@@ -490,8 +491,10 @@ class GaussianMLP(Ensemble):
         model_input: torch.Tensor,
         model_state: Dict[str, torch.Tensor],
         deterministic: bool = False,
-        rng: Optional[torch.Generator] = None,): 
-        
+        rng: Optional[torch.Generator] = None,
+        temperature:float = 1.0,
+        ): 
+
         means_of_all_ensembles, logvars_of_all_ensembles = self._default_forward(model_input)
         vars_of_all_ensembles = logvars_of_all_ensembles.exp()
         stds_of_all_ensembles = torch.sqrt(vars_of_all_ensembles)
@@ -512,6 +515,7 @@ class GaussianMLP(Ensemble):
             result = result.permute(1, 0)
             result = - torch.log(result)
             result = result.softmax(dim=1)
+            result = result / temperature
 
             # Ensure no invalid values in weights
             result = torch.clamp(result, min=1e-10)
@@ -519,12 +523,21 @@ class GaussianMLP(Ensemble):
             
             return result
         
+        # IF USING GJS DISTANCE FOR WEIGHT:
         weights = compute_one_to_many_disagreement(means_of_all_ensembles, stds_of_all_ensembles)
+        # IF USING ENTROPY
+        # weights = self.compute_entropy_based_weights(means_of_all_ensembles, stds_of_all_ensembles)
+
 
 
         
-
-        model_indices = torch.multinomial(weights, num_samples=1, replacement=False).squeeze()
+        try:
+            model_indices = torch.multinomial(weights, num_samples=1, replacement=False).squeeze()
+        except:
+            print(f"GOT ISSUE WITH WEIGHTS. Given {weights}")
+            print(f"Max value {torch.max(weights)}")
+            print(f"Min value {torch.min(weights)}")
+            raise Exception("ERROR WITH WEIGHTS PROBABILITY TENSOR")
 
         #choose random model
         #model_indices = torch.randint(self.ensemble_size, (model_input.shape[0],))
@@ -537,7 +550,38 @@ class GaussianMLP(Ensemble):
                 chosen_means, chosen_stds,  means_of_all_ensembles, stds_of_all_ensembles, model_indices), weights
     
 
-
+    def compute_entropy_based_weights(self, means, stds):
+        """
+        Computes weights based on the entropy of each model's predictive distribution.
+        Higher entropy = higher uncertainty = lower weight.
+        
+        Args:
+            means: Tensor of shape [ensemble_size, batch_size, output_dim]
+            stds: Tensor of shape [ensemble_size, batch_size, output_dim]
+        
+        Returns:
+            weights: Tensor of shape [batch_size, ensemble_size]
+        """
+        ensemble_size = means.shape[0]
+        batch_size = means.shape[1]
+        
+        # Calculate entropy of each Gaussian: 0.5 * log(2πe * var)
+        # For multivariate case, sum entropy across dimensions
+        entropies = 0.5 * torch.log(2 * math.pi * math.e * stds**2)
+        entropies = entropies.sum(dim=-1)  # Sum across output dimensions
+        
+        # Convert to shape [batch_size, ensemble_size]
+        entropies = entropies.permute(1, 0)
+        
+        # Lower entropy should have higher probability,
+        # so we negate and apply softmax
+        weights = (-entropies / temperature).softmax(dim=1)
+        
+        # Ensure no invalid values in weights
+        weights = torch.clamp(weights, min=1e-10)
+        weights = weights / weights.sum(dim=1, keepdim=True)
+        
+        return weights
         
     
 

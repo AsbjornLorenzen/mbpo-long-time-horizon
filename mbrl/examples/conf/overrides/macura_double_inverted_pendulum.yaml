@@ -4,7 +4,7 @@ env: "gym___InvertedDoublePendulum-v4"
 term_fn: "double_inverted_pendulum"
 trial_length: 1000
 
-num_steps: 15000
+num_steps: 6000
 epoch_length: 1000
 patience: 5
 improvement_threshold: 0.01
@@ -48,3 +48,6 @@ xi: 1
 zeta: 95
 
 seed: 9999
+
+sampling_temperature: 0.3
+use_weighted_uncertainty: False

@@ -4,7 +4,8 @@ defaults:
   - overrides: macura_humanoid
   - _self_
 
-seed: 47
+seed: 50
+gpu_idx: 0
 # can use cuda:0 here if GPU available, else cpu
 device: "cuda:0"
 

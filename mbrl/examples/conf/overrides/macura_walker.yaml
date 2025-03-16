@@ -42,3 +42,6 @@ max_rollout_length: 10
 
 xi: 0.3
 zeta: 95
+
+sampling_temperature: 0.6
+use_weighted_uncertainty: False

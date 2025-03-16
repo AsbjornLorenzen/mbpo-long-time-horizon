@@ -45,6 +45,8 @@ def rollout_model_and_populate_sac_buffer(
         pink_noise_exploration_mod: bool=False,
         xi:float = 1.0,
         zeta: int = 95,
+        use_weighted_uncertainty: bool = False,
+        temperature = 1.0,
 
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
@@ -103,7 +105,7 @@ def rollout_model_and_populate_sac_buffer(
         # model_indices is (batchsize) and is the chosen model_indices of the ensemebles [0,ensemble_size)
         (pred_next_obs, pred_rewards, pred_terminateds, model_state,
          chosen_means, chosen_stds, means_of_all_ensembles,
-         stds_of_all_ensembles, model_indices), weights = model_env.step_plus_gaussians_importance_sampling(action, model_state, sample=True)
+         stds_of_all_ensembles, model_indices), weights = model_env.step_plus_gaussians_importance_sampling(action, model_state, sample=True, temperature=temperature)
 
         ensemble_size = model_env.dynamics_model.model.ensemble_size
 
@@ -115,16 +117,18 @@ def rollout_model_and_populate_sac_buffer(
         avg_weights = torch.mean(weights, dim=0)
 
         # WEIGHTED METHOD
-        jsp = dm.calc_weighted_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
-                                                                              vars_of_all_ensembles,
-                                                                                means_of_all_ensembles.shape[0],
-                                                                                avg_weights,
-                                                                              dm.calc_uncertainty_score_genShen)
+        if use_weighted_uncertainty:
+            jsp = dm.calc_weighted_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
+                                                                                vars_of_all_ensembles,
+                                                                                    means_of_all_ensembles.shape[0],
+                                                                                    avg_weights,
+                                                                                dm.calc_uncertainty_score_genShen)
         # OLD WAY
-        # jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
-        #                                                                       vars_of_all_ensembles,
-        #                                                                         means_of_all_ensembles.shape[0],
-        #                                                                       dm.calc_uncertainty_score_genShen)
+        else:
+            jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
+                                                                                vars_of_all_ensembles,
+                                                                                    means_of_all_ensembles.shape[0],
+                                                                                dm.calc_uncertainty_score_genShen)
 
         
         # threshold_score = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(chosen_means,
@@ -469,6 +473,8 @@ def train(
                     pink_noise_exploration_mod,
                     xi,
                     zeta,
+                    cfg.overrides.use_weighted_uncertainty,
+                    cfg.overrides.sampling_temperature,
                 )
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
                 if current_border_estimate_list_full == False:
