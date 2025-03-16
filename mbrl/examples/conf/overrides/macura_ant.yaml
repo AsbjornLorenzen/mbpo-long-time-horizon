@@ -27,7 +27,7 @@ sac_alpha: 0.2
 sac_policy: "Gaussian"
 sac_target_update_interval: 4
 sac_automatic_entropy_tuning: true
-sac_target_entropy: -30 #-3
+sac_target_entropy: -4 #-3
 sac_hidden_size: 1024
 sac_lr: 0.0003
 sac_batch_size: 256
