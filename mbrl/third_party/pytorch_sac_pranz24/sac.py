@@ -112,7 +112,7 @@ class SAC(object):
             reward_batch,
             mask_batch, #these corresponds to the terminated ones
             _, #truncated not used
-        ) = memory.sample(batch_size).astuple() # 
+        ) = memory.sample(batch_size,False).astuple() # 
         state_batch = torch.FloatTensor(state_batch).to(self.device)
         next_state_batch = torch.FloatTensor(next_state_batch).to(self.device)
         action_batch = torch.FloatTensor(action_batch).to(self.device)

@@ -27,7 +27,7 @@ class VideoRecorder(object):
             self.frames.append(frame)
 
     def save(self, file_name):
-        if self.enabled:
+        """if self.enabled:
             path = os.path.join(self.save_dir, file_name)
             print("Start saving video")
             print(path)
@@ -38,4 +38,6 @@ class VideoRecorder(object):
                 out.write(rgb_img)
             out.release()
             print("End Saving video")
-            #imageio.mimsave(path, self.frames, fps=self.fps)
+            #imageio.mimsave(path, self.frames, fps=self.fps)"""
+        pass
+    

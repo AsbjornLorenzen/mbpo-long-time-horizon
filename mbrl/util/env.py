@@ -6,7 +6,16 @@ from abc import ABC, abstractmethod
 from typing import Dict, Optional, Tuple, Union, cast
 import gymnasium as gym
 import gymnasium_robotics
+import gym_continuous_maze
+
 gym.register_envs(gymnasium_robotics)
+
+gym.register(
+    id="ContinuousMaze-v0",
+    entry_point="gym_continuous_maze.gym_continuous_maze:ContinuousMaze",
+    max_episode_steps=100,
+)
+
 
 import gymnasium as gym
 import gymnasium.wrappers

@@ -442,8 +442,6 @@ class ReplayBuffer:
         self.num_stored = 0
 
         self.trajectory_indices: Optional[List[Tuple[int, int]]] = None
-        max_trajectory_length= 50
-        
         if max_trajectory_length:
             self.trajectory_indices = []
             capacity += max_trajectory_length
@@ -599,7 +597,7 @@ class ReplayBuffer:
         self.cur_idx = (self.cur_idx + _how_many) % self.capacity
         self.num_stored = min(self.num_stored + _how_many, self.capacity)
 
-    def sample(self, batch_size: int) -> TransitionBatch:
+    def sample(self, batch_size: int, should_HER: bool=False) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
 
         Args:
@@ -612,9 +610,8 @@ class ReplayBuffer:
             (obs[i], act[i], next_obs[i], rewards[i], terminateds[i], truncateds[i]).
         """
 
-
         indices = self._rng.choice(self.num_stored, size=batch_size)
-        return self._batch_from_indices(indices)
+        return self._batch_from_indices(indices, should_HER=should_HER)
 
     def sample_also_real_experienced_states(self, batch_size: int, real_experienced_states_full) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
@@ -647,7 +644,7 @@ class ReplayBuffer:
         )
         return self._batch_from_indices(indices)
 
-    def _batch_from_indices(self, indices: Sized) -> TransitionBatch:
+    def _batch_from_indices(self, indices: Sized, should_HER: bool = False) -> TransitionBatch:
         obs = self.obs[indices]
         next_obs = self.next_obs[indices]
         action = self.action[indices]
@@ -655,12 +652,15 @@ class ReplayBuffer:
         terminated = self.terminated[indices]
         truncated = self.truncated[indices]
 
-        virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated  = self._get_final_virtual_data(indices, obs, next_obs, action, reward, terminated, truncated)
-
-
-        obs = np.concatenate((obs, virtual_obs), axis=0)
+        if should_HER and self.trajectory_indices is not None:
+            virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated  = self._get_final_virtual_data(indices, obs, next_obs, action, reward, terminated, truncated)
+            obs = np.concatenate((obs, virtual_obs), axis=0)
+            next_obs = np.concatenate((next_obs, virtual_next_obs), axis=0)
+            action = np.concatenate((action, virtual_action), axis=0)
+            reward = np.concatenate((reward, virtual_reward), axis=0)
+            terminated = np.concatenate((terminated, virtual_terminated), axis=0)
+            truncated = np.concatenate((truncated, virtual_truncated), axis=0)
         
-
         return TransitionBatch(obs, action, next_obs, reward, terminated, truncated)
 
 
@@ -682,7 +682,6 @@ class ReplayBuffer:
 
  
         for i in indices:
-            print(i)
             for t in self.trajectory_indices:
                 low, high = t[0], t[1]
                 if low  < i <= high:

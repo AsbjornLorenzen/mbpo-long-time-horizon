@@ -119,37 +119,35 @@ def evaluate(
         (float): The average reward of the num_episode episodes
     """
 
-    avg_episode_reward = 0
-    reward_tracker = []
-    success_tracker = []
+    all_success_rates = []
+    all_rewards = []
+    for worker in range(10):
+        success_counter = 0
+        for episode in range(num_episodes):
+            obs, info = env.reset()
+            done = False
+            trunc = False
+            total_reward = 0
+            while not done and not trunc:
+                action = agent.act(obs, deterministic=True)
+                obs, reward, done, trunc,  info = env.step(action)
 
-    for episode in range(num_episodes):
-        obs, _ = env.reset()
-        video_recorder.init(enabled=(episode == 0))
-        terminated= truncated = False
-        episode_reward = 0
-        success = False 
-        while not terminated and not truncated:
-            action = agent.act(obs)
-            obs, reward, terminated, truncated, info = env.step(action)
+                total_reward += reward
+                # Check if the goal was achieved (info['is_success'] is provided in Fetch environments)
+                if info.get("is_success", 0.0) == 1.0:
+                    print(f"Episode {episode + 1} achieved the goal!")
+                    success_counter += 1
+                    break  # Stop the episode if success is achieved
             
-            if info.get("is_success", 0.0) == 1.0:
-                success = True
-                break 
+            all_rewards.append(total_reward)
 
-            video_recorder.record(env)
-            episode_reward += reward
-
-        if success:
-            success_tracker.append(1)
-        else:
-            success_tracker.append(0)
-
-        avg_episode_reward += episode_reward
-        reward_tracker.append(episode_reward)
+        success_rate = success_counter / (num_episodes)
+        all_success_rates.append(success_rate)
     
-    print(f"pass rate: {median(success_tracker)}")
-    return avg_episode_reward / num_episodes
+    print(statistics.median(all_success_rates))
+
+    return sum(all_rewards) / (num_episodes * 10)
+    
 
 def create_one_dim_tr_model(
         cfg: omegaconf.DictConfig,

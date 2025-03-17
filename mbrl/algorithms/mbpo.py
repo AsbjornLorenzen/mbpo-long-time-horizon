@@ -145,6 +145,7 @@ def train(
         obs_type=dtype,
         action_type=dtype,
         reward_type=dtype,
+        collect_trajectories=False,
     )
     random_explore = cfg.algorithm.random_initial_explore
     mbrl.util.common.rollout_agent_trajectories(
@@ -153,7 +154,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer,
-        collect_full_trajectories=True
+        collect_full_trajectories=False
     )
 
     # ---------------------------------------------------------
