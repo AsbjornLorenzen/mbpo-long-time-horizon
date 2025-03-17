@@ -10,7 +10,7 @@ real_data_ratio: ${overrides.real_data_ratio}
 sac_samples_action: true
 initial_exploration_steps: 1000
 random_initial_explore: true
-num_eval_episodes: 1
+num_eval_episodes: 10
 
 #Periodic network reset of SAC agent
 critic_reset: false
