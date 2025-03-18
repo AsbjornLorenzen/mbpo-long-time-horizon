@@ -1,5 +1,5 @@
 # @package _group_
-env: "gym___Walker2d-v4"
+env: "gym___Walker2d-v5"
 term_fn: "walker2d"
 
 num_steps: 200000
@@ -42,3 +42,6 @@ max_rollout_length: 10
 
 xi: 0.3
 zeta: 95
+
+
+seed: 0

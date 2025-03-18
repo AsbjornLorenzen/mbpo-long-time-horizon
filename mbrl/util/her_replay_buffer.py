@@ -597,7 +597,7 @@ class ReplayBuffer:
         self.cur_idx = (self.cur_idx + _how_many) % self.capacity
         self.num_stored = min(self.num_stored + _how_many, self.capacity)
 
-    def sample(self, batch_size: int, include_time_steps=False) -> TransitionBatch:
+    def sample(self, batch_size: int, should_HER: bool=False) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
 
         Args:
@@ -609,8 +609,9 @@ class ReplayBuffer:
             The i-th transition corresponds to
             (obs[i], act[i], next_obs[i], rewards[i], terminateds[i], truncateds[i]).
         """
+
         indices = self._rng.choice(self.num_stored, size=batch_size)
-        return self._batch_from_indices(indices, include_time_steps=include_time_steps)
+        return self._batch_from_indices(indices, should_HER=should_HER)
 
     def sample_also_real_experienced_states(self, batch_size: int, real_experienced_states_full) -> TransitionBatch:
         """Samples a batch of transitions from the replay buffer.
@@ -627,7 +628,7 @@ class ReplayBuffer:
         indices = self._rng.choice(self.num_stored, size=batch_size)
         return self._batch_from_indices(indices), [real_experienced_states_full[i] for i in indices]
 
-    def sample_trajectory(self, include_time_steps=False) -> Optional[TransitionBatch]:
+    def sample_trajectory(self) -> Optional[TransitionBatch]:
         """Samples a full trajectory and returns it as a batch.
 
         Returns:
@@ -641,9 +642,9 @@ class ReplayBuffer:
         indices = np.arange(
             self.trajectory_indices[idx][0], self.trajectory_indices[idx][1]
         )
-        return self._batch_from_indices(indices, include_time_steps)
+        return self._batch_from_indices(indices)
 
-    def _batch_from_indices(self, indices: Sized, include_time_steps=False) -> TransitionBatch:
+    def _batch_from_indices(self, indices: Sized, should_HER: bool = False) -> TransitionBatch:
         obs = self.obs[indices]
         next_obs = self.next_obs[indices]
         action = self.action[indices]
@@ -651,75 +652,70 @@ class ReplayBuffer:
         terminated = self.terminated[indices]
         truncated = self.truncated[indices]
 
-
+        if should_HER and self.trajectory_indices is not None:
+            virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated  = self._get_final_virtual_data(indices, obs, next_obs, action, reward, terminated, truncated)
+            obs = np.concatenate((obs, virtual_obs), axis=0)
+            next_obs = np.concatenate((next_obs, virtual_next_obs), axis=0)
+            action = np.concatenate((action, virtual_action), axis=0)
+            reward = np.concatenate((reward, virtual_reward), axis=0)
+            terminated = np.concatenate((terminated, virtual_terminated), axis=0)
+            truncated = np.concatenate((truncated, virtual_truncated), axis=0)
         
-        if include_time_steps:
-            time_steps = []
-            current_trajectory = []
-
-            for idx in indices:
-                found_home = False
-                for i, (start, end) in enumerate(self.trajectory_indices):
-                    if start <= idx < end:
-                        time_steps.append(idx - start)
-                        
-                        found_home = True
-                        break
-                
-                if not found_home:
-                    current_trajectory.append(idx)
-
-
-            
-          
-            def convert_sequences_to_indices(data):
-                unique_values = sorted(set(data))  # Sort unique values
-                sequences = []  # To store detected sequences
-
-                # Step 1: Group unique numbers into sequences
-                current_sequence = []
-                for i, num in enumerate(unique_values):
-                    if not current_sequence or num == current_sequence[-1] + 1:
-                        current_sequence.append(num)
-                    else:
-                        sequences.append(current_sequence)
-                        current_sequence = [num]
-                if current_sequence:
-                    sequences.append(current_sequence)
-
-                # Step 2: Create mapping for each sequence
-                index_mapping = {}
-                for sequence in sequences:
-                    for idx, num in enumerate(sequence):
-                        index_mapping[num] = idx  # Assign sequential indices
-
-                # Step 3: Replace original data with mapped indices (preserving order)
-                sequence_indices = [index_mapping[num] for num in data]
-
-                return sequence_indices
-            
-            time_steps.extend(convert_sequences_to_indices(current_trajectory))
-
-            
-
-            return TransitionBatch(
-                obs, action, next_obs, reward, terminated, truncated
-            ), np.array(time_steps)
-        
-
         return TransitionBatch(obs, action, next_obs, reward, terminated, truncated)
+
+
+    def _get_final_virtual_data(self , indices,  obs, next_obs, action, reward, terminated, truncated) -> TransitionBatch:
+        
+        """
+        for each index, its end position.
+            Once we have the end position, compute its final state.
+            relabel this indexes goal as the final state
+        """
+
+
+        virtual_obs = np.copy(obs)
+        virtual_next_obs = np.copy(next_obs)
+        virtual_action =  np.copy(action)
+        virtual_reward =  np.copy(reward)
+        virtual_terminated =  np.copy(terminated)
+        virtual_truncated = np.copy(truncated)
+
+ 
+        for i in indices:
+            for t in self.trajectory_indices:
+                low, high = t[0], t[1]
+                if low  < i <= high:
+                    highobs = self.obs[high]
+                    achieved_goal = self._get_achieved_goal(highobs)
+
+                    virtual_obs[i, -3:] = achieved_goal
+                    virtual_next_obs[i, -3:] = achieved_goal
+                    virtual_reward[i] = self._get_reward(virtual_obs[i])
+
+        return virtual_obs, virtual_next_obs, virtual_action, virtual_reward, virtual_terminated, virtual_truncated    
+
+        
+
+    def _get_achieved_goal(self, observation): 
+        return observation[:3]
+
+
+    def _get_reward(self, observation):
+        current_pos = observation[:3]
+        target = observation[-3:]
+        return -np.linalg.norm(current_pos - target)
 
     def __len__(self):
         return self.num_stored
 
-    def save(self, save_dir: Union[pathlib.Path, str], file_name='replay_buffer.npz'):
+    def save(self, save_dir: Union[pathlib.Path, str]):
         """Saves the data in the replay buffer to a given directory.
 
         Args:
             save_dir (str): the directory to save the data to. File name will be
                 replay_buffer.npz.
         """
-        path = pathlib.Path(save_dir) / file_name
+        path = pathlib.Path(save_dir) / "replay_buffer.npz"
         np.savez(
             path,
             obs=self.obs[: self.num_stored],
@@ -926,14 +922,14 @@ class ReplayBufferDynamicLifeTime:
     def __len__(self):
         return self.num_stored
 
-    def save(self, save_dir: Union[pathlib.Path, str], file_name='replay_buffer.npz'):
+    def save(self, save_dir: Union[pathlib.Path, str]):
         """Saves the data in the replay buffer to a given directory.
 
         Args:
             save_dir (str): the directory to save the data to. File name will be
                 replay_buffer.npz.
         """
-        path = pathlib.Path(save_dir) / file_name
+        path = pathlib.Path(save_dir) / "replay_buffer.npz"
         if self.cur_idx_end-self.cur_idx_start > 0:
             np.savez(
                 path,
