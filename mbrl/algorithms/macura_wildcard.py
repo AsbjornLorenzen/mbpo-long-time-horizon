@@ -217,7 +217,7 @@ def rollout_model_and_populate_sac_buffer(
             
 
             for i, t in enumerate(certain_timesteps):
-                state_values[t].append(certain_obs[i, 0])
+                state_values[t].append(certain_obs[i])
             
 
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize

@@ -184,7 +184,7 @@ def rollout_model_and_populate_sac_buffer(
             
 
             for i, t in enumerate(certain_timesteps):
-                state_values[t].append(certain_obs[i, 0])
+                state_values[t].append(certain_obs[i])
 
 
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
@@ -470,7 +470,8 @@ def train(
                     env_steps,
                     pink_noise_exploration_mod,
                     xi,
-                    zeta
+                    zeta,
+                    state_values=state_values
                 )
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
                 if current_border_estimate_list_full == False:

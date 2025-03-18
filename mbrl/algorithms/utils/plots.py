@@ -69,14 +69,14 @@ def plot_density_plot(data, file_name):
 
 
 
-def plot_d_env( data, file_name): 
+def plot_d_env( data, file_name, dimension): 
     results = [[] for x in range(1000)]
     for (start, stop) in data['trajectory_indices']:
         span = np.arange(start, stop)
         each_time_step_data = data['next_obs'][span]
 
         for i, val in enumerate(each_time_step_data):
-            results[i].append(val[0]) # observation 0
+            results[i].append(val[6]) # observation 0
 
     
     
@@ -87,7 +87,7 @@ def plot_d_env( data, file_name):
 
 
 # TODO: also allow the dimension to be varied.
-def plot_enviroment_buffer(work_dir, dimension=0):
+def plot_enviroment_buffer(work_dir, dimension=6):
     d_env_path = work_dir + '/replay_buffer.npz'
     d_mod_path = work_dir + '/d_mod.pickle'
 
@@ -95,8 +95,16 @@ def plot_enviroment_buffer(work_dir, dimension=0):
     with open(d_mod_path, "rb") as f:
         d_mod = pickle.load(f)
 
-    plot_density_plot(d_mod, f'{work_dir}/d_mod.png')
-    plot_d_env(d_env, f'{work_dir}/d_env.png')
+
+    
+    new_d_mod = [[] for x in range(1000)]
+
+    for i, arr in enumerate(d_mod):
+        for x in arr:
+            new_d_mod[i].append(x[dimension])
+
+    plot_density_plot(new_d_mod, f'{work_dir}/d_mod.png')
+    plot_d_env(d_env, f'{work_dir}/d_env.png', dimension=dimension)
 
 
 def create_graphs(work_dir): 
@@ -104,4 +112,8 @@ def create_graphs(work_dir):
     plot_rollout_length(work_dir)
     plot_critic_loss(work_dir)
     plot_enviroment_buffer( work_dir)
-    
+
+
+
+if __name__ == "__main__":
+    create_graphs('exp/macura_wildcard/experiment_name/gym___InvertedDoublePendulum-v4/2025.03.18/132326')
