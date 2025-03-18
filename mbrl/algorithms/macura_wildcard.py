@@ -361,7 +361,7 @@ def train(
     use_double_dtype = cfg.algorithm.get("normalize_double_precision", False)
     dtype = np.double if use_double_dtype else np.float32
     
-    state_values = [ [] for _ in range(1000)]
+    state_values = [ [] for _ in range(2000)]
 
     replay_buffer_real_env = mbrl.util.common.create_replay_buffer(
         cfg,

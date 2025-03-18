@@ -285,7 +285,7 @@ def train(
     max_rollout_length = cfg.algorithm.max_rollout_length
     obs_shape = env.observation_space.shape
     act_shape = env.action_space.shape
-    state_values = [ [] for _ in range(1000)]
+    state_values = [ [] for _ in range(2000)]
 
     # ------------------- Create SAC Agent -------------------
     mbrl.planning.complete_agent_cfg(env, cfg.algorithm.agent)

@@ -7,7 +7,7 @@ target_is_delta: true
 learned_rewards: true
 freq_train_model: ${overrides.freq_train_model}
 real_data_ratio: ${overrides.real_data_ratio}
-
+device: "cuda:0"
 #Periodic network reset of SAC agent
 critic_reset: false
 #critic_reset_factor = crf, only has effect if critic_reset = true
