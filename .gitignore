@@ -8,3 +8,6 @@ __pycache__/
 exp/
 
 visualizations/graphs/*
+
+Gymnasium-Robotics/*
+gym-continous-maze/*

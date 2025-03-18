@@ -67,7 +67,7 @@ def rollout_model_and_populate_sac_buffer(
         batch_size (int): Size of batch of initial states to start rollouts and
         thus there will be batch_size*rollout_horizon more transitions stored in the sac_buffer
     """
-    batch, time_steps = replay_buffer.sample(batch_size)
+    batch, time_steps = replay_buffer.sample(batch_size, include_time_steps=True)
     # intial_obs ndarray batchsize x observation_size
     initial_obs, *_ = cast(mbrl.types.TransitionBatch, batch).astuple()
     # model_state tensor batchsize x observation_size

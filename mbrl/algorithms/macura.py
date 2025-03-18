@@ -22,6 +22,7 @@ from mbrl.third_party.pytorch_sac import VideoRecorder
 from omegaconf import OmegaConf
 import mbrl.util.distance_measures as dm
 import colorednoise as cn
+from mbrl.algorithms.utils.plots import create_graphs, save_d_mod
 
 MBPO_LOG_FORMAT = [
     ("env_step", "S", "int"),
@@ -45,6 +46,8 @@ def rollout_model_and_populate_sac_buffer(
         pink_noise_exploration_mod: bool=False,
         xi:float = 1.0,
         zeta: int = 95,
+        state_values =None,
+
 
 ):
     """Generates rollouts to create simulated trainings data for sac agent. These rollouts are used to populate the
@@ -64,7 +67,7 @@ def rollout_model_and_populate_sac_buffer(
         batch_size (int): Size of batch of initial states to start rollouts and
         thus there will be batch_size*rollout_horizon more transitions stored in the sac_buffer
     """
-    batch = replay_buffer.sample(batch_size)
+    batch, time_steps= replay_buffer.sample(batch_size, include_time_steps=True)
     # intial_obs ndarray batchsize x observation_size
     initial_obs, *_ = cast(mbrl.types.TransitionBatch, batch).astuple()
     # model_state tensor batchsize x observation_size
@@ -174,6 +177,16 @@ def rollout_model_and_populate_sac_buffer(
             pred_truncated[certain_bool_map_over_all_rollouts], #Let it be false all the time because model predictions do no get truncated
             reduce_time=reduce_time #is true for i==0 and serves the purpose to reduce the lifetime of the stored items in replay buffer
         )
+
+        if i !=0:
+            certain_obs = pred_next_obs[indices_of_certain_transitions]
+            certain_timesteps = time_steps[indices_of_certain_transitions]
+            
+
+            for i, t in enumerate(certain_timesteps):
+                state_values[t].append(certain_obs[i, 0])
+
+
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
         certain_bool_map_over_all_rollouts = np.logical_and(~(pred_terminateds.squeeze()),
                                                             certain_bool_map_over_all_rollouts)
@@ -272,6 +285,7 @@ def train(
     max_rollout_length = cfg.algorithm.max_rollout_length
     obs_shape = env.observation_space.shape
     act_shape = env.action_space.shape
+    state_values = [ [] for _ in range(1000)]
 
     # ------------------- Create SAC Agent -------------------
     mbrl.planning.complete_agent_cfg(env, cfg.algorithm.agent)
@@ -319,6 +333,7 @@ def train(
         obs_type=dtype,
         action_type=dtype,
         reward_type=dtype,
+        collect_trajectories=True
     )
 
     real_experienced_states_full = []
@@ -333,6 +348,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer_real_env,
+        collect_full_trajectories=True
     )
     
     # ---------------------------------------------------------
@@ -518,6 +534,8 @@ def train(
                     agent.sac_agent.save_checkpoint(
                         ckpt_path=os.path.join(work_dir, "sac.pth")
                     )
+                save_d_mod(work_dir, state_values)
+                create_graphs(work_dir)
                 epoch += 1
             obs = next_obs
     return np.float32(best_eval_reward)
