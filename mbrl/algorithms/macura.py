@@ -201,7 +201,7 @@ def rollout_model_and_populate_sac_buffer(
     print(f"Smallest Rollout Length: {np.min(rollout_tracker)}")
     print(f"Biggest Rollout Length: {np.max(rollout_tracker)}") 
     
-    return new_sac_size, border_for_this_rollout
+    return new_sac_size, border_for_this_rollout, np.mean(rollout_tracker)
 
 
 def change_capacity_replay_buffer(
@@ -456,7 +456,7 @@ def train(
                 # --------- Rollout new model and store imagined trajectories --------
                 # generates maximally rollout_length * rollout_batch_size
                 # (=freq_train_model * effective_model_rollouts_per_step) new transitions for SAC buffer
-                new_sac_size, current_border_estimate_update = rollout_model_and_populate_sac_buffer(
+                new_sac_size, current_border_estimate_update, rollout_length = rollout_model_and_populate_sac_buffer(
                     rng,
                     model_env,
                     replay_buffer_real_env,
@@ -524,7 +524,7 @@ def train(
                         "epoch": epoch,
                         "env_step": env_steps - 1,
                         "episode_reward": avg_reward,
-                        "rollout_length": max_rollout_length,
+                        "rollout_length": rollout_length,
                     },
                 )
             if env_steps % epoch_length == 0:

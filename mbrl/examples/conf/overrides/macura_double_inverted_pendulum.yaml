@@ -4,7 +4,7 @@ env: "gym___InvertedDoublePendulum-v4"
 term_fn: "double_inverted_pendulum"
 trial_length: 1000
 
-num_steps: 7000
+num_steps: 10000
 epoch_length: 1000
 patience: 5
 improvement_threshold: 0.01
@@ -40,11 +40,11 @@ unc_tresh_run_avg_history: 2000
 pink_noise_exploration_mod: False
 #options are pink,white,det
 exploration_type_env: "pink"
-max_rollout_length: 30
+max_rollout_length: 10
 pink_noise_exploration_env: True
 
 
 xi: 1
 zeta: 95
 
-seed: 1
+seed: 0
