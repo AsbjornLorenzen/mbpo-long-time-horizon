@@ -1,5 +1,6 @@
 name: "macura"
 
+
 normalize: true
 normalize_double_precision: true
 target_is_delta: true

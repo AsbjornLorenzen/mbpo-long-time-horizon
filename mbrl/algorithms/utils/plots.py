@@ -110,7 +110,7 @@ def plot_enviroment_buffer(work_dir, dimension=6):
 def create_graphs(work_dir): 
     plot_results(work_dir)
     plot_rollout_length(work_dir)
-    plot_critic_loss(work_dir)
+    # plot_critic_loss(work_dir)
     plot_enviroment_buffer( work_dir)
 
 

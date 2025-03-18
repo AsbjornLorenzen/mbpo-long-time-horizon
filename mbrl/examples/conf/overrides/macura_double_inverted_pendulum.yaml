@@ -40,7 +40,7 @@ unc_tresh_run_avg_history: 2000
 pink_noise_exploration_mod: False
 #options are pink,white,det
 exploration_type_env: "pink"
-max_rollout_length: 10
+max_rollout_length: 30
 pink_noise_exploration_env: True
 
 
