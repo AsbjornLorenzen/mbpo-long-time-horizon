@@ -53,24 +53,24 @@ def save_d_mod(work_dir, state_arr, file_name='d_mod.pickle'):
 def plot_density_plot(data, file_name):
     plt.figure(figsize=(10, 4))
 
-    for t, vels in zip([x for x in range(len(data))], data):
-        plt.scatter([t] * len(vels), vels, color="blue", alpha=0.1, s=5)
+    for t, vels in zip([x for x in range(101)], data):
+        plt.scatter([t* 10] * len(vels), vels, color="blue", alpha=0.1, s=5)
     
+
+    plt.xticks([x for x in range(0, 1001, 100)])
     plt.xlabel("Time")
-    plt.ylabel("Left Elbow Angular Velocity")
-    plt.title("Environment Buffer (Info-Prop Dyna)")
+    plt.ylabel("observation 6")
+    plt.title("Environment Buffer")
     # Grid styling
     plt.grid(True, linestyle="--", alpha=0.6)
 
-    # Show colorbar
-    plt.colorbar(label="Density")
+  
     plt.savefig(file_name)
 
 
 
-
 def plot_d_env( data, file_name, dimension): 
-    results = [[] for x in range(1000)]
+    results = [[] for x in range(2000)]
     for (start, stop) in data['trajectory_indices']:
         span = np.arange(start, stop)
         each_time_step_data = data['next_obs'][span]
@@ -97,7 +97,7 @@ def plot_enviroment_buffer(work_dir, dimension=6):
 
 
     
-    new_d_mod = [[] for x in range(1000)]
+    new_d_mod = [[] for x in range(2000)]
 
     for i, arr in enumerate(d_mod):
         for x in arr:
@@ -116,4 +116,4 @@ def create_graphs(work_dir):
 
 
 if __name__ == "__main__":
-    create_graphs('exp/macura_wildcard/experiment_name/gym___InvertedDoublePendulum-v4/2025.03.18/132326')
+    create_graphs('exp/macura/experiment_name/gym___InvertedDoublePendulum-v4/2025.03.18/193502')

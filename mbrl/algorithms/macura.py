@@ -532,9 +532,9 @@ def train(
                     video_recorder.save(f"{epoch}.mp4")
                 if avg_reward > best_eval_reward:
                     best_eval_reward = avg_reward
-                    agent.sac_agent.save_checkpoint(
-                        ckpt_path=os.path.join(work_dir, "sac.pth")
-                    )
+                    #agent.sac_agent.save_checkpoint(
+                    #    ckpt_path=os.path.join(work_dir, "sac.pth")
+                    #)
                 save_d_mod(work_dir, state_values)
                 create_graphs(work_dir)
                 epoch += 1
