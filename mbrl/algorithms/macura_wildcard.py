@@ -96,7 +96,7 @@ def rollout_model_and_populate_sac_buffer(
     
 
     cum_threshold = 0
-    for i in range(20):
+    for i in range(100):
         # action is of type ndarray batchsize x actionsize, action is sampled of SAC Gaussian
         if pink_noise_exploration_mod:
             action = agent.act_eps(obs, eps=action_noise[:, i], sample=sac_samples_action, batched=True)
@@ -154,7 +154,7 @@ def rollout_model_and_populate_sac_buffer(
 
             # cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 99.9) * xi 
 
-            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 60) * xi 
+            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 50) * xi 
 
             cumulative_threshold = 1 / (current_border_count + 1) * cumalative_border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * cumalative_current_border_estimate
@@ -173,7 +173,7 @@ def rollout_model_and_populate_sac_buffer(
         indices_of_certain_transitions = uncertainty_score < threshold
 
         if i != 0:
-            indices_of_certain_transitions_ = cum_uncertainty_scores < ((cum_threshold))
+            indices_of_certain_transitions_ = cum_uncertainty_scores < ((cumulative_threshold))
             indices_of_certain_transitions  = np.logical_and(indices_of_certain_transitions, indices_of_certain_transitions_)
 
 
@@ -545,8 +545,7 @@ def train(
                 ((sac_buffer.num_stored * 4) / sac_buffer.capacity) * num_sac_updates_per_step)
             
 
-            dynamic_updates_per_step = 20
-            
+            dynamic_updates_per_step= 10
             #Periodic network reset
             if critic_reset and env_steps%critic_reset_every_step==0:
                 agent.sac_agent.critic.reset_weights(critic_reset_factor)
