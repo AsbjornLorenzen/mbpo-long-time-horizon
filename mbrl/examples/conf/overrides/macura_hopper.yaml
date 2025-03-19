@@ -2,7 +2,7 @@
 env: "gym___Hopper-v4"
 term_fn: "hopper"
 
-num_steps: 150000
+num_steps: 30000
 epoch_length: 1000
 num_elites: 5
 patience: 5
@@ -40,5 +40,5 @@ pink_noise_exploration_mod: False
 exploration_type_env: "pink"
 max_rollout_length: 10
 
-xi: 15
+xi: 30
 zeta: 90
