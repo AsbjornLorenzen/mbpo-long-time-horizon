@@ -99,6 +99,7 @@ def calc_rest_ensemble_mean_std(means_of_all_ensembles: torch.Tensor,
     # assert torch.sum(torch.isnan(var_of_rest_ensembles)) == 0
     return means_of_rest_ensembles, var_of_rest_ensembles
 
+
 def evaluate(
         env: gym.Env,
         agent: SACAgent,
@@ -118,36 +119,19 @@ def evaluate(
     Returns:
         (float): The average reward of the num_episode episodes
     """
-
-    all_success_rates = []
-    all_rewards = []
-    for worker in range(10):
-        success_counter = 0
-        for episode in range(num_episodes):
-            obs, info = env.reset()
-            done = False
-            trunc = False
-            total_reward = 0
-            while not done and not trunc:
-                action = agent.act(obs, deterministic=True)
-                obs, reward, done, trunc,  info = env.step(action)
-
-                total_reward += reward
-                # Check if the goal was achieved (info['is_success'] is provided in Fetch environments)
-                if info.get("is_success", 0.0) == 1.0:
-                    print(f"Episode {episode + 1} achieved the goal!")
-                    success_counter += 1
-                    break  # Stop the episode if success is achieved
-            
-            all_rewards.append(total_reward)
-
-        success_rate = success_counter / (num_episodes)
-        all_success_rates.append(success_rate)
-    
-    print(statistics.median(all_success_rates))
-
-    return sum(all_rewards) / (num_episodes * 10)
-    
+    avg_episode_reward = 0
+    for episode in range(num_episodes):
+        obs, _ = env.reset()
+        video_recorder.init(enabled=(episode == 0))
+        terminated= truncated = False
+        episode_reward = 0
+        while not terminated and not truncated:
+            action = agent.act(obs)
+            obs, reward, terminated, truncated, _ = env.step(action)
+            video_recorder.record(env)
+            episode_reward += reward
+        avg_episode_reward += episode_reward
+    return avg_episode_reward / num_episodes    
 
 def create_one_dim_tr_model(
         cfg: omegaconf.DictConfig,

@@ -67,7 +67,7 @@ def rollout_model_and_populate_sac_buffer(
         batch_size (int): Size of batch of initial states to start rollouts and
         thus there will be batch_size*rollout_horizon more transitions stored in the sac_buffer
     """
-    batch, time_steps = replay_buffer.sample(batch_size, include_time_steps=True)
+    batch = replay_buffer.sample(batch_size)
     # intial_obs ndarray batchsize x observation_size
     initial_obs, *_ = cast(mbrl.types.TransitionBatch, batch).astuple()
     # model_state tensor batchsize x observation_size
@@ -93,12 +93,10 @@ def rollout_model_and_populate_sac_buffer(
 
     cum_uncertainty_scores = np.zeros(obs.shape[0])
     rollout_horizon = 1000
-    """
-    Rather than rollout the model to max rollout length...
-    Need to keep a track of the cummalative error.
-    Rather than rolling out to max rollout length, check if anyones still going.
-    """
-    for i in range(rollout_horizon):
+    
+
+    cum_threshold = 0
+    for i in range(20):
         # action is of type ndarray batchsize x actionsize, action is sampled of SAC Gaussian
         if pink_noise_exploration_mod:
             action = agent.act_eps(obs, eps=action_noise[:, i], sample=sac_samples_action, batched=True)
@@ -136,7 +134,7 @@ def rollout_model_and_populate_sac_buffer(
                                                                               dm.calc_uncertainty_score_genShen)
         
         uncertainty_score = jsp
-        cum_uncertainty_scores = cum_uncertainty_scores + uncertainty_score
+        cum_uncertainty_scores = cum_uncertainty_scores + (0.99 ** i) * uncertainty_score
 
 
        
@@ -154,7 +152,9 @@ def rollout_model_and_populate_sac_buffer(
             
             
 
-            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 99.9) * xi 
+            # cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 99.9) * xi 
+
+            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 60) * xi 
 
             cumulative_threshold = 1 / (current_border_count + 1) * cumalative_border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * cumalative_current_border_estimate
@@ -164,15 +164,17 @@ def rollout_model_and_populate_sac_buffer(
             print(f"Updated Uncertainty threshhold is {threshold}")
             print(f"GJS distance (rollouts included if smaller than the above threshold) {uncertainty_score}")
             print(f"Cumulative uncertainty score {cum_uncertainty_scores}")
+
             reduce_time = True
         else:
             reduce_time = False
 
+        cum_threshold += (0.99 **i) * cumulative_threshold
+        indices_of_certain_transitions = uncertainty_score < threshold
 
-        # either stop because youre cumalitve score is too high or it spikes.
-        indices_of_certain_transitions = cum_uncertainty_scores < cumulative_threshold
-        indices_of_certain_transitions_ = uncertainty_score < threshold
-        indices_of_certain_transitions  = np.logical_and(indices_of_certain_transitions, indices_of_certain_transitions_)
+        if i != 0:
+            indices_of_certain_transitions_ = cum_uncertainty_scores < ((cum_threshold))
+            indices_of_certain_transitions  = np.logical_and(indices_of_certain_transitions, indices_of_certain_transitions_)
 
 
         # certain_bool_map contains true for storing transition if it is certain enough and false else
@@ -212,12 +214,12 @@ def rollout_model_and_populate_sac_buffer(
         )
 
         if i !=0:
-            certain_obs = pred_next_obs[indices_of_certain_transitions]
-            certain_timesteps = time_steps[indices_of_certain_transitions]
-            
+            # certain_obs = pred_next_obs[indices_of_certain_transitions]
+            # certain_timesteps = time_steps[indices_of_certain_transitions]
 
-            for i, t in enumerate(certain_timesteps):
-                state_values[t].append(certain_obs[i])
+            # for i, t in enumerate(certain_timesteps):
+            #     state_values[t].append(certain_obs[i])
+            pass 
             
 
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
@@ -226,7 +228,7 @@ def rollout_model_and_populate_sac_buffer(
        
 
         obs = pred_next_obs
-        time_steps = time_steps + 1
+        # time_steps = time_steps + 1
         batch_size = obs.shape[0]
         model_state = model_env.reset(
             initial_obs_batch=cast(np.ndarray, obs),
@@ -371,7 +373,7 @@ def train(
         obs_type=dtype,
         action_type=dtype,
         reward_type=dtype,
-        collect_trajectories=True,
+        collect_trajectories=False,
     )
 
     real_experienced_states_full = []
@@ -386,7 +388,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer_real_env,
-        collect_full_trajectories=True,
+        collect_full_trajectories=False,
     )
     
     # ---------------------------------------------------------
@@ -442,9 +444,10 @@ def train(
     current_border_estimate_list = np.empty(Max_Count)
     current_cum_border_estimate_list = np.empty(Max_Count)
 
-
     # have a way to track env steps. 
-    
+    trains_per_epoch = epoch_length / freq_train_model
+
+    new_sac_size =  max_rollout_length * rollout_batch_size * trains_per_epoch * num_epochs_to_retain_sac_buffer
     while env_steps < total_max_steps_in_environment:
         # ---------------------------------------------------------------------------------
         # --------------------- Initialization for new epoch ---------------------
@@ -457,8 +460,9 @@ def train(
         sac_buffer_capacity = max_rollout_length * rollout_batch_size * trains_per_epoch
         sac_buffer_capacity = sac_buffer_capacity * num_epochs_to_retain_sac_buffer
         sac_buffer_capacity = int(sac_buffer_capacity)
+        
         lifetime = num_epochs_to_retain_sac_buffer * trains_per_epoch
-        sac_buffer_capacity = int(sac_buffer_capacity)
+        
         sac_buffer = change_capacity_replay_buffer(
             sac_buffer, obs_shape, act_shape, sac_buffer_capacity, cfg.seed, lifetime
         )
@@ -518,7 +522,6 @@ def train(
                     state_values,
                     cumalative_current_border_estimate=cumalative_border_estimate
                 )
-
                 current_border_estimate_list[current_border_count_position] = current_border_estimate_update
                 current_cum_border_estimate_list[current_border_count_position] = cumalative_border_estimate
 
@@ -539,7 +542,10 @@ def train(
             # --------------- Agent Training -----------------
             # here is a formula which controlls learning steps proportionally to the filling of the SAC buffer
             dynamic_updates_per_step = int(
-                ((sac_buffer.num_stored * 2) / sac_buffer.capacity) * num_sac_updates_per_step)
+                ((sac_buffer.num_stored * 4) / sac_buffer.capacity) * num_sac_updates_per_step)
+            
+
+            dynamic_updates_per_step = 20
             
             #Periodic network reset
             if critic_reset and env_steps%critic_reset_every_step==0:
@@ -583,9 +589,9 @@ def train(
                     video_recorder.save(f"{epoch}.mp4")
                 if avg_reward > best_eval_reward:
                     best_eval_reward = avg_reward
-                    agent.sac_agent.save_checkpoint(
-                        ckpt_path=os.path.join(work_dir, "sac.pth")
-                    )
+                    #agent.sac_agent.save_checkpoint(
+                    #    ckpt_path=os.path.join(work_dir, "sac.pth")
+                    #)
                 save_d_mod(work_dir, state_values)
                 create_graphs(work_dir)
                 epoch += 1

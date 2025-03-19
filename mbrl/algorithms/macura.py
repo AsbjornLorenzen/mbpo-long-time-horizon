@@ -67,7 +67,7 @@ def rollout_model_and_populate_sac_buffer(
         batch_size (int): Size of batch of initial states to start rollouts and
         thus there will be batch_size*rollout_horizon more transitions stored in the sac_buffer
     """
-    batch, time_steps= replay_buffer.sample(batch_size, include_time_steps=True)
+    batch = replay_buffer.sample(batch_size, include_time_steps=False)
     # intial_obs ndarray batchsize x observation_size
     initial_obs, *_ = cast(mbrl.types.TransitionBatch, batch).astuple()
     # model_state tensor batchsize x observation_size
@@ -178,14 +178,14 @@ def rollout_model_and_populate_sac_buffer(
             reduce_time=reduce_time #is true for i==0 and serves the purpose to reduce the lifetime of the stored items in replay buffer
         )
 
-        if i !=0:
+        """if i !=0:
             certain_obs = pred_next_obs[indices_of_certain_transitions]
             certain_timesteps = time_steps[indices_of_certain_transitions]
             
 
             for i, t in enumerate(certain_timesteps):
                 state_values[t].append(certain_obs[i])
-
+        """
 
         # squeezing to transform pred_terminateds from batch_size x 1 to batchsize
         certain_bool_map_over_all_rollouts = np.logical_and(~(pred_terminateds.squeeze()),
@@ -333,7 +333,7 @@ def train(
         obs_type=dtype,
         action_type=dtype,
         reward_type=dtype,
-        collect_trajectories=True
+        collect_trajectories=False
     )
 
     real_experienced_states_full = []
@@ -348,7 +348,7 @@ def train(
         mbrl.planning.RandomAgent(env) if random_explore else agent,
         {} if random_explore else {"sample": True, "batched": False},
         replay_buffer=replay_buffer_real_env,
-        collect_full_trajectories=True
+        collect_full_trajectories=False
     )
     
     # ---------------------------------------------------------

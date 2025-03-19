@@ -1,5 +1,5 @@
 # @package _group_
-env: "gym___Walker2d-v5"
+env: "gym___Walker2d-v4"
 term_fn: "walker2d"
 
 num_steps: 200000
@@ -38,7 +38,7 @@ unc_tresh_run_avg_history: 2000
 pink_noise_exploration_mod: False
 #options are pink,white,det
 exploration_type_env: "pink"
-max_rollout_length: 10
+max_rollout_length: 20
 
 xi: 0.3
 zeta: 95

@@ -15,9 +15,9 @@ critic_reset_factor: 1.0
 critic_reset_every_step: 20000 # env_steps
 
 sac_samples_action: true
-initial_exploration_steps: 1000
+initial_exploration_steps: 5000
 random_initial_explore: false
-num_eval_episodes: 10
+num_eval_episodes: 3
 max_rollout_length: ${overrides.max_rollout_length}
 
 # --------------------------------------------
