@@ -40,7 +40,7 @@ pink_noise_exploration_mod: False
 exploration_type_env: "pink"
 max_rollout_length: 10
 
-xi: 30
+xi: 10
 zeta: 90
 
 seed: 43

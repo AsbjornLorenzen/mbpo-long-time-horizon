@@ -154,7 +154,7 @@ def rollout_model_and_populate_sac_buffer(
 
             # cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 99.9) * xi 
 
-            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 50) * xi 
+            cumalative_border_for_this_rollout = np.percentile(uncertainty_score, 40) * xi 
 
             cumulative_threshold = 1 / (current_border_count + 1) * cumalative_border_for_this_rollout + current_border_count / (
                         current_border_count + 1) * cumalative_current_border_estimate

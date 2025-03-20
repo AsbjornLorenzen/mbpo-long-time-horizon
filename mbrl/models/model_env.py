@@ -123,9 +123,9 @@ class ModelEnv:
             )
 
             # TODO: only on goal conditioned robot tasks.
-            next_model_state['obs'][:, -3:] = model_state['obs'][:, -3:]
-            next_observs[:, -3:] = model_state['obs'][:, -3:]
-
+            # next_model_state['obs'][:, -3:] = model_state['obs'][:, -3:]
+            # next_observs[:, -3:] = model_state['obs'][:, -3:]
+            
             rewards = (
                 pred_rewards
                 if self.reward_fn is None

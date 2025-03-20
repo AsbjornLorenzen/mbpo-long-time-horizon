@@ -1,4 +1,4 @@
-env: "gym___FetchPushDense-v4"
+env: "gym___FetchReachDense-v4"
 term_fn: "no_termination"
 
 
@@ -20,7 +20,6 @@ num_epochs_to_retain_sac_buffer: 1
 
 minimum_variance_exponent: -10
 
-sac_buffer_size: 2000000
 real_data_ratio: 0.05
 
 sac_gamma: 0.99
@@ -29,7 +28,7 @@ sac_alpha: 0.2
 sac_policy: "Gaussian"
 sac_target_update_interval: 4
 sac_automatic_entropy_tuning: true
-sac_target_entropy: -30 #-3
+sac_target_entropy: -4 #-3
 sac_hidden_size: 1024
 sac_lr: 0.0003
 sac_batch_size: 256
@@ -40,5 +39,5 @@ pink_noise_exploration_mod: False
 exploration_type_env: "pink"
 max_rollout_length: 10
 
-xi: 20 # NOTE: is 30 in paper
+xi: 10000 # NOTE: is 30 in paper
 zeta: 95

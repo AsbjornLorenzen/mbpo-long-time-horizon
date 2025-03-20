@@ -115,6 +115,7 @@ def rollout_model_and_populate_sac_buffer(
 
         # -------------------------------------------------------------------#
 
+        
         jsp = dm.calc_pairwise_symmetric_uncertainty_for_measure_function(means_of_all_ensembles,
                                                                               vars_of_all_ensembles,
                                                                                 means_of_all_ensembles.shape[0],
@@ -154,7 +155,6 @@ def rollout_model_and_populate_sac_buffer(
             certain_bool_map_over_all_rollouts = np.logical_and(certain_bool_map_this_rollout, certain_bool_map_over_all_rollouts)
 
         number_of_certain_transitions = certain_bool_map_over_all_rollouts.sum()
-
         rollout_tracker = np.append(rollout_tracker, np.full((obs.shape[0] - number_of_certain_transitions), i))
         new_sac_size = new_sac_size + number_of_certain_transitions
         if number_of_certain_transitions == 0:
