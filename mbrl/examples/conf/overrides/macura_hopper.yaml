@@ -42,3 +42,5 @@ max_rollout_length: 10
 
 xi: 30
 zeta: 90
+
+seed: 43
